@@ -214,6 +214,36 @@
     text-align:left;
   }
 
+  .sort-button{
+    all:unset;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    cursor:pointer;
+    color:inherit;
+    font:inherit;
+    line-height:1.2;
+  }
+
+  .sort-button .sort-indicator{
+    display:inline-block;
+    width:0;
+    height:0;
+    border-left:4px solid transparent;
+    border-right:4px solid transparent;
+    border-top:6px solid currentColor;
+    transition:transform 0.2s ease, opacity 0.2s ease;
+    opacity:0.35;
+  }
+
+  .sort-button.active .sort-indicator{
+    opacity:1;
+  }
+
+  .sort-button.asc .sort-indicator{
+    transform:rotate(180deg);
+  }
+
   tbody td{
     padding:11px 16px;
     text-align:right;
@@ -365,10 +395,10 @@
     <h2 id="allocation-heading">Asset Allocation</h2>
     <div class="allocation-wrap">
       <div class="donut-box">
-        <svg width="220" height="220" viewBox="0 0 220 220" role="img" aria-label="Donut chart showing asset allocation: Index Funds 55.96%, Direct Equity 22.22%, Commodity and Sector ETFs 16.21%, International ETFs 5.61%">
+        <svg width="220" height="220" viewBox="0 0 220 220" role="img" aria-label="Donut chart showing asset allocation: Mutual Funds 55.96%, Direct Equity 22.22%, Commodity and Sector ETFs 16.21%, International ETFs 5.61%">
           <g transform="translate(110,110) rotate(-90)">
             <circle r="80" fill="none" stroke="#e6e4e1" stroke-width="28"></circle>
-            <!-- Index Funds 55.96% -->
+            <!-- Mutual Funds 55.96% -->
             <circle r="80" fill="none" stroke="#1c1c1a" stroke-width="28"
               stroke-dasharray="281.29 502.65" stroke-dashoffset="0"></circle>
             <!-- Direct Equity 22.22% -->
@@ -390,7 +420,7 @@
           <li>
             <span class="swatch-label">
               <span class="swatch" style="background:#1c1c1a;"></span>
-              Index Funds
+              Mutual Funds
             </span>
             <span><span class="pct">55.96%</span><span class="amt">₹13,305.03</span></span>
           </li>
@@ -424,14 +454,13 @@
   <section aria-labelledby="holdings-heading">
     <h2 id="holdings-heading">Holdings</h2>
     <table>
-      <caption>15 holdings, sorted by current value (highest to lowest)</caption>
       <thead>
         <tr>
-          <th scope="col" class="text-left">Asset</th>
-          <th scope="col">Allocation</th>
-          <th scope="col">Invested</th>
-          <th scope="col">Current Value</th>
-          <th scope="col">Gain / Loss</th>
+          <th scope="col" class="text-left"><button type="button" class="sort-button" data-sort-key="asset" aria-sort="none">Asset<span class="sort-indicator"></span></button></th>
+          <th scope="col"><button type="button" class="sort-button" data-sort-key="allocation" aria-sort="none">Allocation<span class="sort-indicator"></span></button></th>
+          <th scope="col"><button type="button" class="sort-button" data-sort-key="invested" aria-sort="none">Invested<span class="sort-indicator"></span></button></th>
+          <th scope="col"><button type="button" class="sort-button" data-sort-key="currentValue" aria-sort="none">Current Value<span class="sort-indicator"></span></button></th>
+          <th scope="col"><button type="button" class="sort-button" data-sort-key="gainLoss" aria-sort="none">Gain / Loss<span class="sort-indicator"></span></button></th>
         </tr>
       </thead>
       <tbody>
@@ -552,6 +581,86 @@
       </tfoot>
     </table>
   </section>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const table = document.querySelector('section[aria-labelledby="holdings-heading"] table');
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      const buttons = table.querySelectorAll('.sort-button');
+      const columnIndexes = {
+        asset: 0,
+        allocation: 1,
+        invested: 2,
+        currentValue: 3,
+        gainLoss: 4,
+      };
+      let activeSort = { key: 'asset', direction: 'asc' };
+
+      function parseValue(text, key) {
+        const normalized = text.trim();
+        if (key === 'asset') {
+          return normalized.toLowerCase();
+        }
+        const valueText = normalized
+          .replace(/[₹,%]/g, '')
+          .replace(/[−–—]/g, '-')
+          .replace(/,/g, '')
+          .replace('+', '');
+        return parseFloat(valueText) || 0;
+      }
+
+      function sortRows(key, direction) {
+        const index = columnIndexes[key];
+        const sorted = [...rows].sort((a, b) => {
+          const aText = a.cells[index].textContent;
+          const bText = b.cells[index].textContent;
+          const aValue = parseValue(aText, key);
+          const bValue = parseValue(bText, key);
+
+          if (typeof aValue === 'string' || typeof bValue === 'string') {
+            return direction === 'asc'
+              ? aValue.localeCompare(bValue)
+              : bValue.localeCompare(aValue);
+          }
+          return direction === 'asc' ? aValue - bValue : bValue - aValue;
+        });
+
+        tbody.innerHTML = '';
+        for (const row of sorted) {
+          tbody.appendChild(row);
+        }
+      }
+
+      function updateHeaderState(key, direction) {
+        buttons.forEach((button) => {
+          const buttonKey = button.dataset.sortKey;
+          const isActive = buttonKey === key;
+          button.classList.toggle('active', isActive);
+          button.classList.toggle('asc', isActive && direction === 'asc');
+          button.classList.toggle('desc', isActive && direction === 'desc');
+          button.setAttribute('aria-sort', isActive ? (direction === 'asc' ? 'ascending' : 'descending') : 'none');
+        });
+      }
+
+      buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const key = button.dataset.sortKey;
+          if (activeSort.key === key) {
+            activeSort.direction = activeSort.direction === 'asc' ? 'desc' : 'asc';
+          } else {
+            activeSort.key = key;
+            activeSort.direction = 'asc';
+          }
+          sortRows(activeSort.key, activeSort.direction);
+          updateHeaderState(activeSort.key, activeSort.direction);
+        });
+      });
+
+      sortRows(activeSort.key, activeSort.direction);
+      updateHeaderState(activeSort.key, activeSort.direction);
+    });
+  </script>
 
   <!-- ============ PORTFOLIO METRICS ============ -->
   <section aria-labelledby="metrics-heading">
