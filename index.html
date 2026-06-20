@@ -1,689 +1,1316 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Abubackar Siddiq — Portfolio</title>
-<style>
-  :root{
-    --bg:#fafaf9;
-    --surface:#ffffff;
-    --border:#e6e4e1;
-    --text:#1c1c1a;
-    --muted:#6b6963;
-    --faint:#9b988f;
-    --green:#15803d;
-    --red:#b91c1c;
-    --accent:#1c1c1a;
-    --radius:10px;
-  }
-
-  *{box-sizing:border-box;}
-
-  html,body{
-    margin:0;
-    padding:0;
-    background:var(--bg);
-    color:var(--text);
-    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Helvetica, Arial, sans-serif;
-    font-size:15px;
-    line-height:1.5;
-    -webkit-font-smoothing:antialiased;
-  }
-
-  .page{
-    max-width:920px;
-    margin:0 auto;
-    padding:48px 24px 80px;
-  }
-
-  /* ---------- Header ---------- */
-  header.site-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:baseline;
-    border-bottom:1px solid var(--border);
-    padding-bottom:20px;
-    margin-bottom:36px;
-  }
-
-  header.site-header h1{
-    font-size:21px;
-    font-weight:600;
-    margin:0;
-    letter-spacing:-0.01em;
-  }
-
-  header.site-header .updated{
-    font-size:12.5px;
-    color:var(--faint);
-    text-align:right;
-  }
-
-  /* ---------- Section shell ---------- */
-  section{
-    margin-bottom:44px;
-  }
-
-  section h2{
-    font-size:12.5px;
-    font-weight:600;
-    text-transform:uppercase;
-    letter-spacing:0.07em;
-    color:var(--faint);
-    margin:0 0 14px 0;
-  }
-
-  /* ---------- Summary ---------- */
-  .summary-grid{
-    display:grid;
-    grid-template-columns:repeat(4, 1fr);
-    gap:1px;
-    background:var(--border);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    overflow:hidden;
-  }
-
-  .summary-cell{
-    background:var(--surface);
-    padding:20px 20px;
-  }
-
-  .summary-cell .label{
-    font-size:12px;
-    color:var(--faint);
-    margin-bottom:8px;
-  }
-
-  .summary-cell .value{
-    font-size:21px;
-    font-weight:600;
-    letter-spacing:-0.01em;
-  }
-
-  .summary-cell .sub{
-    font-size:12.5px;
-    margin-top:4px;
-    color:var(--muted);
-  }
-
-  .pos{color:var(--green);}
-  .neg{color:var(--red);}
-
-  /* ---------- Allocation ---------- */
-  .allocation-wrap{
-    display:flex;
-    gap:40px;
-    align-items:center;
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:28px;
-    background:var(--surface);
-    flex-wrap:wrap;
-  }
-
-  .donut-box{
-    flex:0 0 auto;
-  }
-
-  .legend{
-    flex:1 1 260px;
-    min-width:220px;
-  }
-
-  .legend ul{
-    list-style:none;
-    margin:0;
-    padding:0;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-  }
-
-  .legend li{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    font-size:14px;
-    border-bottom:1px dashed var(--border);
-    padding-bottom:8px;
-  }
-
-  .legend li:last-child{
-    border-bottom:none;
-    padding-bottom:0;
-  }
-
-  .legend .swatch-label{
-    display:flex;
-    align-items:center;
-    gap:10px;
-  }
-
-  .swatch{
-    width:10px;
-    height:10px;
-    border-radius:2px;
-    flex:0 0 auto;
-  }
-
-  .legend .pct{
-    font-weight:600;
-    font-variant-numeric:tabular-nums;
-  }
-
-  .legend .amt{
-    font-size:12px;
-    color:var(--faint);
-    margin-left:8px;
-    font-variant-numeric:tabular-nums;
-  }
-
-  /* ---------- Holdings table ---------- */
-  table{
-    width:100%;
-    border-collapse:collapse;
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    overflow:hidden;
-    font-size:13.5px;
-  }
-
-  caption{
-    text-align:left;
-    font-size:12px;
-    color:var(--faint);
-    padding:0 0 10px 2px;
-  }
-
-  thead th{
-    text-align:right;
-    font-size:11.5px;
-    text-transform:uppercase;
-    letter-spacing:0.05em;
-    color:var(--faint);
-    font-weight:600;
-    padding:12px 16px;
-    border-bottom:1px solid var(--border);
-    white-space:nowrap;
-  }
-
-  thead th:first-child, thead th.text-left{
-    text-align:left;
-  }
-
-  .sort-button{
-    all:unset;
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    cursor:pointer;
-    color:inherit;
-    font:inherit;
-    line-height:1.2;
-  }
-
-  .sort-button .sort-indicator{
-    display:inline-block;
-    width:0;
-    height:0;
-    border-left:4px solid transparent;
-    border-right:4px solid transparent;
-    border-top:6px solid currentColor;
-    transition:transform 0.2s ease, opacity 0.2s ease;
-    opacity:0.35;
-  }
-
-  .sort-button.active .sort-indicator{
-    opacity:1;
-  }
-
-  .sort-button.asc .sort-indicator{
-    transform:rotate(180deg);
-  }
-
-  tbody td{
-    padding:11px 16px;
-    text-align:right;
-    border-bottom:1px solid var(--border);
-    font-variant-numeric:tabular-nums;
-    white-space:nowrap;
-  }
-
-  tbody tr:last-child td{
-    border-bottom:none;
-  }
-
-  tbody td:first-child{
-    text-align:left;
-    white-space:normal;
-  }
-
-  tbody td .asset-name{
-    font-weight:600;
-    display:block;
-  }
-
-  tbody td .asset-symbol{
-    font-size:11.5px;
-    color:var(--faint);
-    display:block;
-    margin-top:1px;
-  }
-
-  tfoot td{
-    padding:13px 16px;
-    font-weight:600;
-    text-align:right;
-    border-top:1px solid var(--border);
-    font-variant-numeric:tabular-nums;
-  }
-
-  tfoot td:first-child{
-    text-align:left;
-  }
-
-  /* ---------- Metrics ---------- */
-  .metrics-grid{
-    display:grid;
-    grid-template-columns:repeat(3, 1fr);
-    gap:1px;
-    background:var(--border);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    overflow:hidden;
-  }
-
-  .metric-cell{
-    background:var(--surface);
-    padding:18px 18px;
-  }
-
-  .metric-cell .label{
-    font-size:12px;
-    color:var(--faint);
-    margin-bottom:8px;
-  }
-
-  .metric-cell .value{
-    font-size:16px;
-    font-weight:600;
-  }
-
-  .metric-cell .value-sub{
-    font-size:12px;
-    color:var(--muted);
-    margin-top:3px;
-  }
-
-  footer.note{
-    font-size:11.5px;
-    color:var(--faint);
-    border-top:1px solid var(--border);
-    padding-top:16px;
-    margin-top:8px;
-  }
-
-  /* ---------- Responsive ---------- */
-  @media (max-width:680px){
-    .summary-grid, .metrics-grid{
-      grid-template-columns:repeat(2, 1fr);
-    }
-    .allocation-wrap{
-      flex-direction:column;
-      align-items:flex-start;
-    }
-    table{
-      font-size:12px;
-    }
-    thead th, tbody td, tfoot td{
-      padding:9px 10px;
-    }
-  }
-
-  /* ---------- Print ---------- */
-  @media print{
-    body{background:#fff;}
-    .page{padding:0 12px;max-width:100%;}
-    section{margin-bottom:28px;}
-    .summary-grid, .metrics-grid, .allocation-wrap, table{
-      box-shadow:none;
-      break-inside:avoid;
-    }
-    a{color:inherit;text-decoration:none;}
-  }
-</style>
-</head>
-<body>
-<div class="page">
-
-  <header class="site-header">
-    <h1>Abubackar Siddiq</h1>
-    <div class="updated">
-      Last updated<br>
-      19 June 2026, 4:35 PM IST
-    </div>
-  </header>
-
-  <!-- ============ PORTFOLIO SUMMARY ============ -->
-  <section aria-labelledby="summary-heading">
-    <h2 id="summary-heading">Portfolio Summary</h2>
-    <div class="summary-grid">
-      <div class="summary-cell">
-        <div class="label">Total Invested</div>
-        <div class="value">₹22,933.97</div>
-      </div>
-      <div class="summary-cell">
-        <div class="label">Current Value</div>
-        <div class="value">₹23,771.57</div>
-      </div>
-      <div class="summary-cell">
-        <div class="label">Total Gain / Loss</div>
-        <div class="value pos">+₹837.60</div>
-      </div>
-      <div class="summary-cell">
-        <div class="label">Return</div>
-        <div class="value pos">+3.65%</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ ASSET ALLOCATION ============ -->
-  <section aria-labelledby="allocation-heading">
-    <h2 id="allocation-heading">Asset Allocation</h2>
-    <div class="allocation-wrap">
-      <div class="donut-box">
-        <svg width="220" height="220" viewBox="0 0 220 220" role="img" aria-label="Donut chart showing asset allocation: Mutual Funds 55.96%, Direct Equity 22.22%, Commodity and Sector ETFs 16.21%, International ETFs 5.61%">
-          <g transform="translate(110,110) rotate(-90)">
-            <circle r="80" fill="none" stroke="#e6e4e1" stroke-width="28"></circle>
-            <!-- Mutual Funds 55.96% -->
-            <circle r="80" fill="none" stroke="#1c1c1a" stroke-width="28"
-              stroke-dasharray="281.29 502.65" stroke-dashoffset="0"></circle>
-            <!-- Direct Equity 22.22% -->
-            <circle r="80" fill="none" stroke="#6b6963" stroke-width="28"
-              stroke-dasharray="111.69 502.65" stroke-dashoffset="-281.29"></circle>
-            <!-- ETFs 16.21% -->
-            <circle r="80" fill="none" stroke="#b6b3a8" stroke-width="28"
-              stroke-dasharray="81.48 502.65" stroke-dashoffset="-392.98"></circle>
-            <!-- International 5.61% -->
-            <circle r="80" fill="none" stroke="#d8d5cc" stroke-width="28"
-              stroke-dasharray="28.20 502.65" stroke-dashoffset="-474.46"></circle>
-          </g>
-          <text x="110" y="105" text-anchor="middle" font-size="13" fill="#9b988f" font-family="-apple-system, sans-serif">Current Value</text>
-          <text x="110" y="126" text-anchor="middle" font-size="16" font-weight="600" fill="#1c1c1a" font-family="-apple-system, sans-serif">₹23,771.57</text>
-        </svg>
-      </div>
-      <div class="legend">
-        <ul>
-          <li>
-            <span class="swatch-label">
-              <span class="swatch" style="background:#1c1c1a;"></span>
-              Mutual Funds
-            </span>
-            <span><span class="pct">55.96%</span><span class="amt">₹13,305.03</span></span>
-          </li>
-          <li>
-            <span class="swatch-label">
-              <span class="swatch" style="background:#6b6963;"></span>
-              Direct Equity
-            </span>
-            <span><span class="pct">22.22%</span><span class="amt">₹5,280.42</span></span>
-          </li>
-          <li>
-            <span class="swatch-label">
-              <span class="swatch" style="background:#b6b3a8;"></span>
-              Commodity &amp; Sector ETFs
-            </span>
-            <span><span class="pct">16.21%</span><span class="amt">₹3,853.32</span></span>
-          </li>
-          <li>
-            <span class="swatch-label">
-              <span class="swatch" style="background:#d8d5cc;"></span>
-              International ETFs
-            </span>
-            <span><span class="pct">5.61%</span><span class="amt">₹1,332.80</span></span>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ HOLDINGS ============ -->
-  <section aria-labelledby="holdings-heading">
-    <h2 id="holdings-heading">Holdings</h2>
-    <table>
-      <thead>
-        <tr>
-          <th scope="col" class="text-left"><button type="button" class="sort-button" data-sort-key="asset" aria-sort="none">Asset<span class="sort-indicator"></span></button></th>
-          <th scope="col"><button type="button" class="sort-button" data-sort-key="allocation" aria-sort="none">Allocation<span class="sort-indicator"></span></button></th>
-          <th scope="col"><button type="button" class="sort-button" data-sort-key="invested" aria-sort="none">Invested<span class="sort-indicator"></span></button></th>
-          <th scope="col"><button type="button" class="sort-button" data-sort-key="currentValue" aria-sort="none">Current Value<span class="sort-indicator"></span></button></th>
-          <th scope="col"><button type="button" class="sort-button" data-sort-key="gainLoss" aria-sort="none">Gain / Loss<span class="sort-indicator"></span></button></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><span class="asset-name">ITC Ltd</span><span class="asset-symbol">ITC · 13 shares</span></td>
-          <td>16.08%</td>
-          <td>₹4,764.20</td>
-          <td>₹3,820.70</td>
-          <td class="neg">−19.80%</td>
-        </tr>
-        <tr>
-          <td><span class="asset-name">Nippon India Nifty Midcap 150 Index Fund</span><span class="asset-symbol">Direct Growth · 127.096 units</span></td>
-          <td>14.21%</td>
-          <td>₹3,000.00</td>
-          <td>₹3,377.89</td>
-          <td class="pos">+12.60%</td>
-        </tr>
-        <tr>
-          <td><span class="asset-name">ICICI Prudential Nifty 50 Index Plan</span><span class="asset-symbol">Direct Growth · 12.07 units</span></td>
-          <td>12.87%</td>
-          <td>₹3,099.82</td>
-          <td>₹3,058.65</td>
-          <td class="neg">−1.33%</td>
-        </tr>
-        <tr>
-          <td><span class="asset-name">Nippon India Nifty Smallcap 250 Index Fund</span><span class="asset-symbol">Direct Growth · 78.661 units</span></td>
-          <td>11.61%</td>
-          <td>₹2,600.00</td>
-          <td>₹2,759.67</td>
-          <td class="pos">+6.14%</td>
-        </tr>
-        <tr>
-          <td><span class="asset-name">Nippon India ETF Gold BeES</span><span class="asset-symbol">GOLDBEES · 20 units</span></td>
-          <td>10.08%</td>
-          <td>₹1,681.87</td>
-          <td>₹2,396.40</td>
-          <td class="pos">+42.48%</td>
-        </tr>
-        <tr>
-          <td><span class="asset-name">Navi Nifty Next 50 Index Fund</span><span class="asset-symbol">Direct Growth · 93.528 units</span></td>
-          <td>6.78%</td>
-          <td>₹1,500.00</td>
-          <td>₹1,609.68</td>
-          <td class="pos">+7.31%</td>
-        </tr>
-        <tr>
-          <td><span class="asset-name">HDFC Flexi Cap Fund</span><span class="asset-symbol">Direct Plan · Growth · 0.587 units</span></td>
-          <td>5.43%</td>
-          <td>₹1,299.53</td>
-          <td>₹1,291.37</td>
-          <td class="neg">−0.63%</td>
-        </tr>
-        <tr>
-          <td><span class="asset-name">Navi Nifty Bank Index Fund</span><span class="asset-symbol">Direct Growth · 79.43 units</span></td>
-          <td>5.08%</td>
-          <td>₹1,200.00</td>
-          <td>₹1,207.77</td>
-          <td class="pos">+0.65%</td>
-        </tr>
-        <tr>
-          <td><span class="asset-name">Nippon India ETF Nifty IT</span><span class="asset-symbol">ITBEES · 32 units</span></td>
-          <td>4.10%</td>
-          <td>₹1,212.37</td>
-          <td>₹975.36</td>
-          <td class="neg">−19.55%</td>
-        </tr>
-        <tr>
-          <td><span class="asset-name">South Indian Bank Ltd</span><span class="asset-symbol">SOUTHBANK · 14 shares</span></td>
-          <td>2.86%</td>
-          <td>₹346.46</td>
-          <td>₹678.72</td>
-          <td class="pos">+95.90%</td>
-        </tr>
-        <tr>
-          <td><span class="asset-name">HDFC Bank Ltd</span><span class="asset-symbol">HDFCBANK · 1 share</span></td>
-          <td>3.29%</td>
-          <td>₹745.00</td>
-          <td>₹781.00</td>
-          <td class="pos">+4.83%</td>
-        </tr>
-        <tr>
-          <td><span class="asset-name">Invesco NASDAQ 100 ETF</span><span class="asset-symbol">QQQM · 0.02447893 units</span></td>
-          <td>2.96%</td>
-          <td>₹566.18</td>
-          <td>₹703.17</td>
-          <td class="pos">+24.22%</td>
-        </tr>
-        <tr>
-          <td><span class="asset-name">Vanguard S&amp;P 500 ETF</span><span class="asset-symbol">VOO · 0.00970001 units</span></td>
-          <td>2.65%</td>
-          <td>₹566.06</td>
-          <td>₹629.63</td>
-          <td class="pos">+11.25%</td>
-        </tr>
-        <tr>
-          <td><span class="asset-name">Nippon India Nifty Pharma ETF</span><span class="asset-symbol">PHARMABEES · 12 units</span></td>
-          <td>1.27%</td>
-          <td>₹262.12</td>
-          <td>₹301.80</td>
-          <td class="pos">+15.14%</td>
-        </tr>
-        <tr>
-          <td><span class="asset-name">Tata Silver Exchange Traded Fund</span><span class="asset-symbol">TATSILV · 8 units</span></td>
-          <td>0.76%</td>
-          <td>₹90.36</td>
-          <td>₹179.76</td>
-          <td class="pos">+98.94%</td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr>
-          <td>Total</td>
-          <td>100.00%</td>
-          <td>₹22,933.97</td>
-          <td>₹23,771.57</td>
-          <td class="pos">+3.65%</td>
-        </tr>
-      </tfoot>
-    </table>
-  </section>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const table = document.querySelector('section[aria-labelledby="holdings-heading"] table');
-      const tbody = table.querySelector('tbody');
-      const rows = Array.from(tbody.querySelectorAll('tr'));
-      const buttons = table.querySelectorAll('.sort-button');
-      const columnIndexes = {
-        asset: 0,
-        allocation: 1,
-        invested: 2,
-        currentValue: 3,
-        gainLoss: 4,
-      };
-      let activeSort = { key: 'asset', direction: 'asc' };
-
-      function parseValue(text, key) {
-        const normalized = text.trim();
-        if (key === 'asset') {
-          return normalized.toLowerCase();
-        }
-        const valueText = normalized
-          .replace(/[₹,%]/g, '')
-          .replace(/[−–—]/g, '-')
-          .replace(/,/g, '')
-          .replace('+', '');
-        return parseFloat(valueText) || 0;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Abubackar Siddiq — Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0b0a;
+        --bg-soft: #0f1110;
+        --surface: #141715;
+        --surface-2: #1a1e1b;
+        --border: rgba(255, 255, 255, 0.07);
+        --border-strong: rgba(255, 255, 255, 0.12);
+        --text: #f1f1ee;
+        --muted: #8c9089;
+        --faint: #5c6059;
+        --green: #3ddc84;
+        --green-dim: rgba(61, 220, 132, 0.12);
+        --red: #ff6a5a;
+        --red-dim: rgba(255, 106, 90, 0.12);
+        --accent: #3ddc84;
+        --gold: #c9a45c;
+        --radius: 14px;
+        --radius-sm: 9px;
+        --font-display: "Space Grotesk", -apple-system, sans-serif;
+        --font-mono: "IBM Plex Mono", "SF Mono", monospace;
       }
 
-      function sortRows(key, direction) {
-        const index = columnIndexes[key];
-        const sorted = [...rows].sort((a, b) => {
-          const aText = a.cells[index].textContent;
-          const bText = b.cells[index].textContent;
-          const aValue = parseValue(aText, key);
-          const bValue = parseValue(bText, key);
+      * {
+        box-sizing: border-box;
+      }
 
-          if (typeof aValue === 'string' || typeof bValue === 'string') {
-            return direction === 'asc'
-              ? aValue.localeCompare(bValue)
-              : bValue.localeCompare(aValue);
-          }
-          return direction === 'asc' ? aValue - bValue : bValue - aValue;
-        });
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font-display);
+        font-size: 15px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
 
-        tbody.innerHTML = '';
-        for (const row of sorted) {
-          tbody.appendChild(row);
+      body {
+        background:
+          radial-gradient(
+            circle at 12% 0%,
+            rgba(61, 220, 132, 0.07),
+            transparent 45%
+          ),
+          radial-gradient(
+            circle at 88% 10%,
+            rgba(201, 164, 92, 0.05),
+            transparent 40%
+          ),
+          var(--bg);
+        min-height: 100vh;
+      }
+
+      .page {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 40px 20px 90px;
+      }
+
+      @media (min-width: 680px) {
+        .page {
+          padding: 56px 32px 110px;
         }
       }
 
-      function updateHeaderState(key, direction) {
-        buttons.forEach((button) => {
-          const buttonKey = button.dataset.sortKey;
-          const isActive = buttonKey === key;
-          button.classList.toggle('active', isActive);
-          button.classList.toggle('asc', isActive && direction === 'asc');
-          button.classList.toggle('desc', isActive && direction === 'desc');
-          button.setAttribute('aria-sort', isActive ? (direction === 'asc' ? 'ascending' : 'descending') : 'none');
-        });
+      /* ---------- Header ---------- */
+      header.site-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 24px;
+        margin-bottom: 40px;
       }
 
-      buttons.forEach((button) => {
-        button.addEventListener('click', () => {
-          const key = button.dataset.sortKey;
-          if (activeSort.key === key) {
-            activeSort.direction = activeSort.direction === 'asc' ? 'desc' : 'asc';
-          } else {
-            activeSort.key = key;
-            activeSort.direction = 'asc';
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand .mark {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: linear-gradient(135deg, var(--green), #1f8a52);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-mono);
+        font-weight: 600;
+        font-size: 14px;
+        color: #06140a;
+        flex: 0 0 auto;
+        box-shadow:
+          0 0 0 1px rgba(61, 220, 132, 0.25),
+          0 8px 20px -8px rgba(61, 220, 132, 0.45);
+      }
+
+      header.site-header h1 {
+        font-size: 19px;
+        font-weight: 600;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+
+      header.site-header .role {
+        font-size: 12px;
+        color: var(--faint);
+        margin-top: 2px;
+        letter-spacing: 0.02em;
+      }
+
+      .live-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--muted);
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      .live-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 0 0 rgba(61, 220, 132, 0.6);
+        animation: pulse 2.2s infinite;
+        flex: 0 0 auto;
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(61, 220, 132, 0.55);
+        }
+        70% {
+          box-shadow: 0 0 0 6px rgba(61, 220, 132, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(61, 220, 132, 0);
+        }
+      }
+
+      .updated-stack {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+      }
+
+      .updated-time {
+        font-size: 11.5px;
+        color: var(--faint);
+      }
+
+      /* ---------- Section shell ---------- */
+      section {
+        margin-bottom: 48px;
+      }
+
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .eyebrow h2 {
+        font-size: 11.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--faint);
+        margin: 0;
+        font-family: var(--font-mono);
+      }
+
+      .eyebrow .rule {
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      /* ---------- Summary ---------- */
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1px;
+        background: var(--border);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+      }
+
+      @media (min-width: 560px) {
+        .summary-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+
+      .summary-cell {
+        background: var(--surface);
+        padding: 20px 18px;
+        transition: background 0.2s ease;
+        position: relative;
+      }
+
+      .summary-cell:hover {
+        background: var(--surface-2);
+      }
+
+      .summary-cell .label {
+        font-size: 11px;
+        color: var(--faint);
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-family: var(--font-mono);
+      }
+
+      .summary-cell .value {
+        font-size: 21px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        font-family: var(--font-mono);
+      }
+
+      .summary-cell .sub {
+        font-size: 12px;
+        margin-top: 6px;
+        color: var(--muted);
+      }
+
+      .pos {
+        color: var(--green);
+      }
+      .neg {
+        color: var(--red);
+      }
+
+      /* ---------- Allocation ---------- */
+      .allocation-wrap {
+        display: flex;
+        gap: 36px;
+        align-items: center;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 28px;
+        background: var(--surface);
+        flex-wrap: wrap;
+      }
+
+      .donut-box {
+        flex: 0 0 auto;
+        margin: 0 auto;
+      }
+
+      .legend {
+        flex: 1 1 260px;
+        min-width: 220px;
+      }
+
+      .legend ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .legend li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 13.5px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 10px;
+      }
+
+      .legend li:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .legend .swatch-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .swatch {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        flex: 0 0 auto;
+      }
+
+      .legend .pct {
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        font-family: var(--font-mono);
+      }
+
+      .legend .amt {
+        font-size: 11.5px;
+        color: var(--faint);
+        margin-left: 8px;
+        font-variant-numeric: tabular-nums;
+        font-family: var(--font-mono);
+      }
+
+      /* ---------- Holdings table ---------- */
+      .table-shell {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--surface);
+        overflow: hidden;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+
+      thead th {
+        text-align: right;
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--faint);
+        font-weight: 600;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+        font-family: var(--font-mono);
+        background: rgba(255, 255, 255, 0.015);
+      }
+
+      thead th:first-child,
+      thead th.text-left {
+        text-align: left;
+      }
+
+      .sort-button {
+        all: unset;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        color: inherit;
+        font: inherit;
+        line-height: 1.2;
+      }
+
+      .sort-button:focus-visible {
+        outline: 1px solid var(--green);
+        outline-offset: 3px;
+        border-radius: 3px;
+      }
+
+      .sort-button .sort-indicator {
+        display: inline-block;
+        width: 0;
+        height: 0;
+        border-left: 3.5px solid transparent;
+        border-right: 3.5px solid transparent;
+        border-top: 5px solid currentColor;
+        transition:
+          transform 0.2s ease,
+          opacity 0.2s ease;
+        opacity: 0.3;
+      }
+
+      .sort-button.active {
+        color: var(--green);
+      }
+
+      .sort-button.active .sort-indicator {
+        opacity: 1;
+      }
+
+      .sort-button.asc .sort-indicator {
+        transform: rotate(180deg);
+      }
+
+      tbody tr {
+        transition: background 0.15s ease;
+      }
+
+      tbody tr:hover {
+        background: rgba(255, 255, 255, 0.025);
+      }
+
+      tbody td {
+        padding: 13px 18px;
+        text-align: right;
+        border-bottom: 1px solid var(--border);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        font-family: var(--font-mono);
+        font-size: 12.5px;
+      }
+
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      tbody td:first-child {
+        text-align: left;
+        white-space: normal;
+        font-family: var(--font-display);
+      }
+
+      tbody td .asset-name {
+        font-weight: 600;
+        display: block;
+        font-size: 13.5px;
+      }
+
+      tbody td .asset-symbol {
+        font-size: 11px;
+        color: var(--faint);
+        display: block;
+        margin-top: 2px;
+        font-family: var(--font-mono);
+      }
+
+      tfoot td {
+        padding: 15px 18px;
+        font-weight: 600;
+        text-align: right;
+        border-top: 1px solid var(--border-strong);
+        font-variant-numeric: tabular-nums;
+        font-family: var(--font-mono);
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      tfoot td:first-child {
+        text-align: left;
+        font-family: var(--font-display);
+      }
+
+      /* ---------- Metrics ---------- */
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1px;
+        background: var(--border);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+      }
+
+      @media (min-width: 560px) {
+        .metrics-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      .metric-cell {
+        background: var(--surface);
+        padding: 18px 18px;
+        transition: background 0.2s ease;
+      }
+
+      .metric-cell:hover {
+        background: var(--surface-2);
+      }
+
+      .metric-cell .label {
+        font-size: 11px;
+        color: var(--faint);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-family: var(--font-mono);
+      }
+
+      .metric-cell .value {
+        font-size: 15px;
+        font-weight: 600;
+      }
+
+      .metric-cell .value-sub {
+        font-size: 11.5px;
+        color: var(--muted);
+        margin-top: 4px;
+        font-family: var(--font-mono);
+      }
+
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        margin-top: 24px;
+        padding-top: 18px;
+        border-top: 1px solid var(--border);
+        font-size: 11px;
+        color: var(--faint);
+        font-family: var(--font-mono);
+      }
+
+      .footer-left {
+        text-align: left;
+      }
+
+      .footer-right {
+        text-align: right;
+      }
+
+      @media (max-width: 600px) {
+        .footer {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+        }
+
+        .footer-right {
+          text-align: left;
+        }
+      }
+
+      /* ---------- Mobile sort control ---------- */
+      .mobile-sort {
+        display: none;
+      }
+
+      @media (max-width: 600px) {
+        .mobile-sort {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          margin-bottom: 14px;
+          padding: 12px 14px;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+        }
+        .mobile-sort label {
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.07em;
+          color: var(--faint);
+          font-family: var(--font-mono);
+          flex: 0 0 auto;
+        }
+        .mobile-sort-controls {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex: 1;
+          justify-content: flex-end;
+        }
+        #mobile-sort-select {
+          background: var(--surface-2);
+          color: var(--text);
+          border: 1px solid var(--border-strong);
+          border-radius: 7px;
+          padding: 8px 10px;
+          font-family: var(--font-mono);
+          font-size: 12.5px;
+          flex: 1;
+          max-width: 170px;
+          appearance: none;
+          -webkit-appearance: none;
+        }
+        #mobile-sort-select:focus-visible {
+          outline: 1px solid var(--green);
+        }
+        #mobile-sort-direction {
+          all: unset;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          border: 1px solid var(--border-strong);
+          border-radius: 7px;
+          background: var(--surface-2);
+          color: var(--green);
+          cursor: pointer;
+          flex: 0 0 auto;
+        }
+        #mobile-sort-direction .sort-indicator {
+          display: inline-block;
+          width: 0;
+          height: 0;
+          border-left: 4px solid transparent;
+          border-right: 4px solid transparent;
+          border-top: 6px solid currentColor;
+          transition: transform 0.2s ease;
+        }
+        #mobile-sort-direction.asc .sort-indicator {
+          transform: rotate(180deg);
+        }
+      }
+
+      /* ---------- Mobile table -> cards ---------- */
+      @media (max-width: 600px) {
+        thead {
+          display: none;
+        }
+        .table-shell {
+          background: transparent;
+          border: none;
+        }
+        table,
+        tbody,
+        tfoot {
+          display: block;
+        }
+        tbody tr {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 6px 12px;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          padding: 14px 16px;
+          margin-bottom: 10px;
+        }
+        tbody tr:hover {
+          background: var(--surface-2);
+        }
+        tbody td {
+          border-bottom: none;
+          padding: 0;
+          text-align: left;
+          white-space: normal;
+        }
+        tbody td:first-child {
+          grid-column: 1 / -1;
+          margin-bottom: 6px;
+        }
+        tbody td:nth-child(2)::before {
+          content: "Allocation";
+        }
+        tbody td:nth-child(3)::before {
+          content: "Invested";
+        }
+        tbody td:nth-child(4)::before {
+          content: "Value";
+        }
+        tbody td:nth-child(5)::before {
+          content: "Return";
+        }
+        tbody td:nth-child(n + 2)::before {
+          display: block;
+          font-size: 9.5px;
+          color: var(--faint);
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          margin-bottom: 3px;
+          font-family: var(--font-mono);
+        }
+        tfoot tr {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 6px 12px;
+          background: var(--surface-2);
+          border: 1px solid var(--border-strong);
+          border-radius: var(--radius-sm);
+          padding: 14px 16px;
+        }
+        tfoot td {
+          border-top: none;
+          text-align: left;
+        }
+        tfoot td:first-child {
+          grid-column: 1/-1;
+        }
+      }
+
+      @media (max-width: 480px) {
+        header.site-header {
+          flex-direction: column;
+          gap: 14px;
+        }
+        .updated-stack {
+          align-items: flex-start;
+        }
+      }
+
+      /* ---------- Print ---------- */
+      @media print {
+        body {
+          background: #fff;
+          color: #000;
+        }
+        .page {
+          padding: 0 12px;
+          max-width: 100%;
+        }
+        section {
+          margin-bottom: 28px;
+        }
+        a {
+          color: inherit;
+          text-decoration: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="site-header">
+        <div class="brand">
+          <div>
+            <h1>Abubackar Siddiq</h1>
+            <div class="role">Investment Portfolio</div>
+          </div>
+        </div>
+        <div class="updated-stack">
+          <div class="updated-time">Updated 19 Jun 2026, 4:35 PM IST</div>
+        </div>
+      </header>
+
+      <!-- ============ PORTFOLIO SUMMARY ============ -->
+      <section aria-labelledby="summary-heading">
+        <div class="eyebrow">
+          <h2 id="summary-heading">Portfolio Summary</h2>
+          <span class="rule"></span>
+        </div>
+        <div class="summary-grid">
+          <div class="summary-cell">
+            <div class="label">Total Invested</div>
+            <div class="value">₹22,933.97</div>
+          </div>
+          <div class="summary-cell">
+            <div class="label">Current Value</div>
+            <div class="value">₹23,771.57</div>
+          </div>
+          <div class="summary-cell">
+            <div class="label">Total Gain / Loss</div>
+            <div class="value pos">+₹837.60</div>
+          </div>
+          <div class="summary-cell">
+            <div class="label">Return</div>
+            <div class="value pos">+3.65%</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ASSET ALLOCATION ============ -->
+      <section aria-labelledby="allocation-heading">
+        <div class="eyebrow">
+          <h2 id="allocation-heading">Asset Allocation</h2>
+          <span class="rule"></span>
+        </div>
+        <div class="allocation-wrap">
+          <div class="donut-box">
+            <svg
+              width="220"
+              height="220"
+              viewBox="0 0 220 220"
+              role="img"
+              aria-label="Donut chart showing asset allocation: Mutual Funds 55.96%, Direct Equity 22.22%, Commodity and Sector ETFs 16.21%, International ETFs 5.61%"
+            >
+              <g transform="translate(110,110) rotate(-90)">
+                <circle
+                  r="80"
+                  fill="none"
+                  stroke="rgba(255,255,255,0.06)"
+                  stroke-width="26"
+                ></circle>
+                <!-- Mutual Funds 55.96% -->
+                <circle
+                  r="80"
+                  fill="none"
+                  stroke="#3ddc84"
+                  stroke-width="26"
+                  stroke-dasharray="278.29 502.65"
+                  stroke-dashoffset="0"
+                ></circle>
+                <!-- Direct Equity 22.22% -->
+                <circle
+                  r="80"
+                  fill="none"
+                  stroke="#c9a45c"
+                  stroke-width="26"
+                  stroke-dasharray="108.69 502.65"
+                  stroke-dashoffset="-281.29"
+                ></circle>
+                <!-- ETFs 16.21% -->
+                <circle
+                  r="80"
+                  fill="none"
+                  stroke="#5c8f9c"
+                  stroke-width="26"
+                  stroke-dasharray="78.48 502.65"
+                  stroke-dashoffset="-392.98"
+                ></circle>
+                <!-- International 5.61% -->
+                <circle
+                  r="80"
+                  fill="none"
+                  stroke="#8c9089"
+                  stroke-width="26"
+                  stroke-dasharray="25.20 502.65"
+                  stroke-dashoffset="-474.46"
+                ></circle>
+              </g>
+              <text
+                x="110"
+                y="103"
+                text-anchor="middle"
+                font-size="11"
+                fill="#5c6059"
+                font-family="'IBM Plex Mono', monospace"
+                letter-spacing="0.5"
+              >
+                CURRENT VALUE
+              </text>
+              <text
+                x="110"
+                y="126"
+                text-anchor="middle"
+                font-size="17"
+                font-weight="600"
+                fill="#f1f1ee"
+                font-family="'IBM Plex Mono', monospace"
+              >
+                ₹23,771.57
+              </text>
+            </svg>
+          </div>
+          <div class="legend">
+            <ul>
+              <li>
+                <span class="swatch-label">
+                  <span class="swatch" style="background: #3ddc84"></span>
+                  Mutual Funds
+                </span>
+                <span
+                  ><span class="pct">55.96%</span
+                  ><span class="amt">₹13,305.03</span></span
+                >
+              </li>
+              <li>
+                <span class="swatch-label">
+                  <span class="swatch" style="background: #c9a45c"></span>
+                  Direct Equity
+                </span>
+                <span
+                  ><span class="pct">22.22%</span
+                  ><span class="amt">₹5,280.42</span></span
+                >
+              </li>
+              <li>
+                <span class="swatch-label">
+                  <span class="swatch" style="background: #5c8f9c"></span>
+                  Commodity &amp; Sector ETFs
+                </span>
+                <span
+                  ><span class="pct">16.21%</span
+                  ><span class="amt">₹3,853.32</span></span
+                >
+              </li>
+              <li>
+                <span class="swatch-label">
+                  <span class="swatch" style="background: #8c9089"></span>
+                  International ETFs
+                </span>
+                <span
+                  ><span class="pct">5.61%</span
+                  ><span class="amt">₹1,332.80</span></span
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ HOLDINGS ============ -->
+      <section aria-labelledby="holdings-heading">
+        <div class="eyebrow">
+          <h2 id="holdings-heading">Holdings</h2>
+          <span class="rule"></span>
+        </div>
+        <div class="mobile-sort">
+          <label for="mobile-sort-select">Sort by</label>
+          <div class="mobile-sort-controls">
+            <select id="mobile-sort-select">
+              <option value="asset">Asset</option>
+              <option value="allocation">Allocation</option>
+              <option value="invested">Invested</option>
+              <option value="currentValue">Current Value</option>
+              <option value="gainLoss">Gain / Loss</option>
+            </select>
+            <button
+              type="button"
+              id="mobile-sort-direction"
+              aria-label="Toggle sort direction"
+            >
+              <span class="sort-indicator"></span>
+            </button>
+          </div>
+        </div>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col" class="text-left">
+                  <button
+                    type="button"
+                    class="sort-button"
+                    data-sort-key="asset"
+                    aria-sort="none"
+                  >
+                    Asset<span class="sort-indicator"></span>
+                  </button>
+                </th>
+                <th scope="col">
+                  <button
+                    type="button"
+                    class="sort-button"
+                    data-sort-key="allocation"
+                    aria-sort="none"
+                  >
+                    Allocation<span class="sort-indicator"></span>
+                  </button>
+                </th>
+                <th scope="col">
+                  <button
+                    type="button"
+                    class="sort-button"
+                    data-sort-key="invested"
+                    aria-sort="none"
+                  >
+                    Invested<span class="sort-indicator"></span>
+                  </button>
+                </th>
+                <th scope="col">
+                  <button
+                    type="button"
+                    class="sort-button"
+                    data-sort-key="currentValue"
+                    aria-sort="none"
+                  >
+                    Current Value<span class="sort-indicator"></span>
+                  </button>
+                </th>
+                <th scope="col">
+                  <button
+                    type="button"
+                    class="sort-button"
+                    data-sort-key="gainLoss"
+                    aria-sort="none"
+                  >
+                    Gain / Loss<span class="sort-indicator"></span>
+                  </button>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <span class="asset-name">ITC Ltd</span
+                  ><span class="asset-symbol">ITC · 13 shares</span>
+                </td>
+                <td>16.08%</td>
+                <td>₹4,764.20</td>
+                <td>₹3,820.70</td>
+                <td class="neg">−19.80%</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="asset-name"
+                    >Nippon India Nifty Midcap 150 Index Fund</span
+                  ><span class="asset-symbol"
+                    >Direct Growth · 127.096 units</span
+                  >
+                </td>
+                <td>14.21%</td>
+                <td>₹3,000.00</td>
+                <td>₹3,377.89</td>
+                <td class="pos">+12.60%</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="asset-name"
+                    >ICICI Prudential Nifty 50 Index Plan</span
+                  ><span class="asset-symbol">Direct Growth · 12.07 units</span>
+                </td>
+                <td>12.87%</td>
+                <td>₹3,099.82</td>
+                <td>₹3,058.65</td>
+                <td class="neg">−1.33%</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="asset-name"
+                    >Nippon India Nifty Smallcap 250 Index Fund</span
+                  ><span class="asset-symbol"
+                    >Direct Growth · 78.661 units</span
+                  >
+                </td>
+                <td>11.61%</td>
+                <td>₹2,600.00</td>
+                <td>₹2,759.67</td>
+                <td class="pos">+6.14%</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="asset-name">Nippon India ETF Gold BeES</span
+                  ><span class="asset-symbol">GOLDBEES · 20 units</span>
+                </td>
+                <td>10.08%</td>
+                <td>₹1,681.87</td>
+                <td>₹2,396.40</td>
+                <td class="pos">+42.48%</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="asset-name">Navi Nifty Next 50 Index Fund</span
+                  ><span class="asset-symbol"
+                    >Direct Growth · 93.528 units</span
+                  >
+                </td>
+                <td>6.78%</td>
+                <td>₹1,500.00</td>
+                <td>₹1,609.68</td>
+                <td class="pos">+7.31%</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="asset-name">HDFC Flexi Cap Fund</span
+                  ><span class="asset-symbol"
+                    >Direct Plan · Growth · 0.587 units</span
+                  >
+                </td>
+                <td>5.43%</td>
+                <td>₹1,299.53</td>
+                <td>₹1,291.37</td>
+                <td class="neg">−0.63%</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="asset-name">Navi Nifty Bank Index Fund</span
+                  ><span class="asset-symbol">Direct Growth · 79.43 units</span>
+                </td>
+                <td>5.08%</td>
+                <td>₹1,200.00</td>
+                <td>₹1,207.77</td>
+                <td class="pos">+0.65%</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="asset-name">Nippon India ETF Nifty IT</span
+                  ><span class="asset-symbol">ITBEES · 32 units</span>
+                </td>
+                <td>4.10%</td>
+                <td>₹1,212.37</td>
+                <td>₹975.36</td>
+                <td class="neg">−19.55%</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="asset-name">South Indian Bank Ltd</span
+                  ><span class="asset-symbol">SOUTHBANK · 14 shares</span>
+                </td>
+                <td>2.86%</td>
+                <td>₹346.46</td>
+                <td>₹678.72</td>
+                <td class="pos">+95.90%</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="asset-name">HDFC Bank Ltd</span
+                  ><span class="asset-symbol">HDFCBANK · 1 share</span>
+                </td>
+                <td>3.29%</td>
+                <td>₹745.00</td>
+                <td>₹781.00</td>
+                <td class="pos">+4.83%</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="asset-name">Invesco NASDAQ 100 ETF</span
+                  ><span class="asset-symbol">QQQM · 0.02447893 units</span>
+                </td>
+                <td>2.96%</td>
+                <td>₹566.18</td>
+                <td>₹703.17</td>
+                <td class="pos">+24.22%</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="asset-name">Vanguard S&amp;P 500 ETF</span
+                  ><span class="asset-symbol">VOO · 0.00970001 units</span>
+                </td>
+                <td>2.65%</td>
+                <td>₹566.06</td>
+                <td>₹629.63</td>
+                <td class="pos">+11.25%</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="asset-name">Nippon India Nifty Pharma ETF</span
+                  ><span class="asset-symbol">PHARMABEES · 12 units</span>
+                </td>
+                <td>1.27%</td>
+                <td>₹262.12</td>
+                <td>₹301.80</td>
+                <td class="pos">+15.14%</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="asset-name"
+                    >Tata Silver Exchange Traded Fund</span
+                  ><span class="asset-symbol">TATSILV · 8 units</span>
+                </td>
+                <td>0.76%</td>
+                <td>₹90.36</td>
+                <td>₹179.76</td>
+                <td class="pos">+98.94%</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td>Total</td>
+                <td>100.00%</td>
+                <td>₹22,933.97</td>
+                <td>₹23,771.57</td>
+                <td class="pos">+3.65%</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </section>
+
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          const table = document.querySelector(
+            'section[aria-labelledby="holdings-heading"] table',
+          );
+          const tbody = table.querySelector("tbody");
+          const rows = Array.from(tbody.querySelectorAll("tr"));
+          const buttons = table.querySelectorAll(".sort-button");
+          const columnIndexes = {
+            asset: 0,
+            allocation: 1,
+            invested: 2,
+            currentValue: 3,
+            gainLoss: 4,
+          };
+          let activeSort = { key: "asset", direction: "asc" };
+
+          function parseValue(text, key) {
+            const normalized = text.trim();
+            if (key === "asset") {
+              return normalized.toLowerCase();
+            }
+            const valueText = normalized
+              .replace(/[₹,%]/g, "")
+              .replace(/[−–—]/g, "-")
+              .replace(/,/g, "")
+              .replace("+", "");
+            return parseFloat(valueText) || 0;
           }
+
+          function sortRows(key, direction) {
+            const index = columnIndexes[key];
+            const sorted = [...rows].sort((a, b) => {
+              const aText = a.cells[index].textContent;
+              const bText = b.cells[index].textContent;
+              const aValue = parseValue(aText, key);
+              const bValue = parseValue(bText, key);
+
+              if (typeof aValue === "string" || typeof bValue === "string") {
+                return direction === "asc"
+                  ? aValue.localeCompare(bValue)
+                  : bValue.localeCompare(aValue);
+              }
+              return direction === "asc" ? aValue - bValue : bValue - aValue;
+            });
+
+            tbody.innerHTML = "";
+            for (const row of sorted) {
+              tbody.appendChild(row);
+            }
+          }
+
+          function updateHeaderState(key, direction) {
+            buttons.forEach((button) => {
+              const buttonKey = button.dataset.sortKey;
+              const isActive = buttonKey === key;
+              button.classList.toggle("active", isActive);
+              button.classList.toggle("asc", isActive && direction === "asc");
+              button.classList.toggle("desc", isActive && direction === "desc");
+              button.setAttribute(
+                "aria-sort",
+                isActive
+                  ? direction === "asc"
+                    ? "ascending"
+                    : "descending"
+                  : "none",
+              );
+            });
+          }
+
+          buttons.forEach((button) => {
+            button.addEventListener("click", () => {
+              const key = button.dataset.sortKey;
+              if (activeSort.key === key) {
+                activeSort.direction =
+                  activeSort.direction === "asc" ? "desc" : "asc";
+              } else {
+                activeSort.key = key;
+                activeSort.direction = "asc";
+              }
+              sortRows(activeSort.key, activeSort.direction);
+              updateHeaderState(activeSort.key, activeSort.direction);
+              syncMobileControls();
+            });
+          });
+
+          const mobileSelect = document.getElementById("mobile-sort-select");
+          const mobileDirectionBtn = document.getElementById(
+            "mobile-sort-direction",
+          );
+
+          function syncMobileControls() {
+            if (mobileSelect) mobileSelect.value = activeSort.key;
+            if (mobileDirectionBtn) {
+              mobileDirectionBtn.classList.toggle(
+                "asc",
+                activeSort.direction === "asc",
+              );
+              mobileDirectionBtn.classList.toggle(
+                "desc",
+                activeSort.direction === "desc",
+              );
+            }
+          }
+
+          if (mobileSelect) {
+            mobileSelect.addEventListener("change", () => {
+              activeSort.key = mobileSelect.value;
+              activeSort.direction = "asc";
+              sortRows(activeSort.key, activeSort.direction);
+              updateHeaderState(activeSort.key, activeSort.direction);
+              syncMobileControls();
+            });
+          }
+
+          if (mobileDirectionBtn) {
+            mobileDirectionBtn.addEventListener("click", () => {
+              activeSort.direction =
+                activeSort.direction === "asc" ? "desc" : "asc";
+              sortRows(activeSort.key, activeSort.direction);
+              updateHeaderState(activeSort.key, activeSort.direction);
+              syncMobileControls();
+            });
+          }
+
           sortRows(activeSort.key, activeSort.direction);
           updateHeaderState(activeSort.key, activeSort.direction);
+          syncMobileControls();
         });
-      });
+      </script>
 
-      sortRows(activeSort.key, activeSort.direction);
-      updateHeaderState(activeSort.key, activeSort.direction);
-    });
-  </script>
+      <!-- ============ PORTFOLIO METRICS ============ -->
+      <section aria-labelledby="metrics-heading">
+        <div class="eyebrow">
+          <h2 id="metrics-heading">Portfolio Metrics</h2>
+          <span class="rule"></span>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-cell">
+            <div class="label">Largest Holding</div>
+            <div class="value">ITC Ltd</div>
+            <div class="value-sub">16.08% of portfolio</div>
+          </div>
+          <div class="metric-cell">
+            <div class="label">Best Performer</div>
+            <div class="value">TATSILV</div>
+            <div class="value-sub pos">+98.94% return</div>
+          </div>
+          <div class="metric-cell">
+            <div class="label">Number of Holdings</div>
+            <div class="value">15</div>
+            <div class="value-sub">Across equity, funds &amp; ETFs</div>
+          </div>
+        </div>
+      </section>
 
-  <!-- ============ PORTFOLIO METRICS ============ -->
-  <section aria-labelledby="metrics-heading">
-    <h2 id="metrics-heading">Portfolio Metrics</h2>
-    <div class="metrics-grid">
-      <div class="metric-cell">
-        <div class="label">Largest Holding</div>
-        <div class="value">ITC Ltd</div>
-        <div class="value-sub">16.08% of portfolio</div>
-      </div>
-      <div class="metric-cell">
-        <div class="label">Best Performer</div>
-        <div class="value">TATSILV</div>
-        <div class="value-sub pos">+98.94% return</div>
-      </div>
-      <div class="metric-cell">
-        <div class="label">Number of Holdings</div>
-        <div class="value">15</div>
-        <div class="value-sub">Across equity, funds &amp; ETFs</div>
-      </div>
+      <footer class="footer">
+        <div class="footer-left">Abubackar Siddiq</div>
+        <div class="footer-right">Compounding Since Oct 2024</div>
+      </footer>
     </div>
-  </section>
-
-</div>
-</body>
+  </body>
 </html>
