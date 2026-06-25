@@ -1,0 +1,107 @@
+[
+  {
+    "name": "ITC Ltd",
+    "symbol": "ITC",
+    "type": "equity",
+    "qty": 13,
+    "invested": 4764.24
+  },
+  {
+    "name": "Nippon India Nifty Midcap 150 Index Fund",
+    "symbol": "148726",
+    "type": "mf",
+    "qty": 127.096,
+    "invested": 3000.00
+  },
+  {
+    "name": "ICICI Prudential Nifty 50 Index Plan",
+    "symbol": "120620",
+    "type": "mf",
+    "qty": 12.07,
+    "invested": 3100.00
+  },
+  {
+    "name": "Nippon India Nifty Smallcap 250 Index Fund",
+    "symbol": "148519",
+    "type": "mf",
+    "qty": 78.661,
+    "invested": 2600.00
+  },
+  {
+    "name": "Nippon India ETF Gold BeES",
+    "symbol": "GOLDBEES",
+    "type": "etf",
+    "qty": 21,
+    "invested": 1797.39
+  },
+  {
+    "name": "Navi Nifty Next 50 Index Fund",
+    "symbol": "149447",
+    "type": "mf",
+    "qty": 93.528,
+    "invested": 1500.00
+  },
+  {
+    "name": "HDFC Flexi Cap Fund",
+    "symbol": "118955",
+    "type": "mf",
+    "qty": 0.587,
+    "invested": 1300.00
+  },
+  {
+    "name": "Navi Nifty Bank Index Fund",
+    "symbol": "149804",
+    "type": "mf",
+    "qty": 79.43,
+    "invested": 1200.00
+  },
+  {
+    "name": "Nippon India ETF Nifty IT",
+    "symbol": "ITBEES",
+    "type": "etf",
+    "qty": 32,
+    "invested": 1212.48
+  },
+  {
+    "name": "South Indian Bank Ltd",
+    "symbol": "SOUTHBANK",
+    "type": "equity",
+    "qty": 14,
+    "invested": 346.92
+  },
+  {
+    "name": "HDFC Bank Ltd",
+    "symbol": "HDFCBANK",
+    "type": "equity",
+    "qty": 1,
+    "invested": 745.00
+  },
+  {
+    "name": "Invesco NASDAQ 100 ETF",
+    "symbol": "QQQM",
+    "type": "us_etf",
+    "qty": 0.02447893,
+    "invested": 566.18
+  },
+  {
+    "name": "Vanguard S&P 500 ETF",
+    "symbol": "VOO",
+    "type": "us_etf",
+    "qty": 0.00970001,
+    "invested": 566.06
+  },
+  {
+    "name": "Nippon India Nifty Pharma ETF",
+    "symbol": "PHARMABEES",
+    "type": "etf",
+    "qty": 12,
+    "invested": 262.08
+  },
+  {
+    "name": "Tata Silver Exchange Traded Fund",
+    "symbol": "TATSILV",
+    "type": "etf",
+    "qty": 8,
+    "invested": 90.40
+  }
+]

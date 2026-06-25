@@ -734,7 +734,7 @@
         </div>
         <div class="updated-stack" id="updated-stack">
           <span class="live-badge" id="live-badge"><span class="live-dot"></span>LIVE</span>
-          <div class="updated-time" id="updated-time">Updated 25 Jun 2026, 11:28 PM IST</div>
+          <div class="updated-time" id="updated-time">Updated {{COMPILED_TIME}} IST</div>
         </div>
       </header>
 
@@ -747,19 +747,19 @@
         <div class="summary-grid">
           <div class="summary-cell">
             <div class="label">Total Invested</div>
-            <div class="value" id="summary-total-invested">₹23,050.75</div>
+            <div class="value" id="summary-total-invested">₹{{TOTAL_INVESTED}}</div>
           </div>
           <div class="summary-cell">
             <div class="label">Current Value</div>
-            <div class="value" id="summary-current-value">₹23,658.53</div>
+            <div class="value" id="summary-current-value">₹{{TOTAL_CURRENT}}</div>
           </div>
           <div class="summary-cell">
             <div class="label">Total Gain / Loss</div>
-            <div class="value pos" id="summary-total-gain">+₹607.78</div>
+            <div class="value {{TOTAL_GAIN_CLASS}}" id="summary-total-gain">{{TOTAL_GAIN_SIGN}}₹{{TOTAL_GAIN}}</div>
           </div>
           <div class="summary-cell">
             <div class="label">Return</div>
-            <div class="value pos" id="summary-total-return">+2.64%</div>
+            <div class="value {{TOTAL_GAIN_CLASS}}" id="summary-total-return">{{TOTAL_GAIN_SIGN}}{{TOTAL_GAIN_PCT}}%</div>
           </div>
         </div>
       </section>
@@ -788,10 +788,7 @@
                   stroke-width="26"
                 ></circle>
                 <g id="donut-arcs">
-                  <circle r="80" fill="none" stroke="#3ddc84" stroke-width="26" stroke-dasharray="282.44 502.65" stroke-dashoffset="-0.00"></circle>
-<circle r="80" fill="none" stroke="#c9a45c" stroke-width="26" stroke-dasharray="110.52 502.65" stroke-dashoffset="-282.44"></circle>
-<circle r="80" fill="none" stroke="#5c8f9c" stroke-width="26" stroke-dasharray="82.04 502.65" stroke-dashoffset="-392.96"></circle>
-<circle r="80" fill="none" stroke="#8c9089" stroke-width="26" stroke-dasharray="27.65 502.65" stroke-dashoffset="-475.00"></circle>
+                  {{DONUT_ARCS}}
                 </g>
               </g>
               <text
@@ -815,53 +812,13 @@
                 font-family="'IBM Plex Mono', monospace"
                 id="donut-total-current"
               >
-                ₹23,658.53
+                ₹{{TOTAL_CURRENT}}
               </text>
             </svg>
           </div>
           <div class="legend">
             <ul id="legend-list">
-              
-          <li>
-            <span class="swatch-label">
-              <span class="swatch" style="background: #3ddc84"></span>
-              Mutual Funds
-            </span>
-            <span>
-              <span class="pct">56.19%</span>
-              <span class="amt">₹13,293.84</span>
-            </span>
-          </li>
-          <li>
-            <span class="swatch-label">
-              <span class="swatch" style="background: #c9a45c"></span>
-              Direct Equity
-            </span>
-            <span>
-              <span class="pct">21.99%</span>
-              <span class="amt">₹5,202.04</span>
-            </span>
-          </li>
-          <li>
-            <span class="swatch-label">
-              <span class="swatch" style="background: #5c8f9c"></span>
-              Commodity & Sector ETFs
-            </span>
-            <span>
-              <span class="pct">16.32%</span>
-              <span class="amt">₹3,861.40</span>
-            </span>
-          </li>
-          <li>
-            <span class="swatch-label">
-              <span class="swatch" style="background: #8c9089"></span>
-              International ETFs
-            </span>
-            <span>
-              <span class="pct">5.50%</span>
-              <span class="amt">₹1,301.24</span>
-            </span>
-          </li>
+              {{LEGEND_ITEMS}}
             </ul>
           </div>
         </div>
@@ -949,167 +906,10 @@
               </tr>
             </thead>
             <tbody id="holdings-tbody">
-              
-              <tr>
-                <td>
-                  <span class="asset-name">ITC Ltd</span>
-                  <span class="asset-symbol">ITC · 13 shares</span>
-                </td>
-                <td>15.94%</td>
-                <td>₹4,764.24</td>
-                <td>₹3,770.00</td>
-                <td class="neg">−20.87%</td>
-              </tr>
-              <tr>
-                <td>
-                  <span class="asset-name">Nippon India Nifty Midcap 150 Index Fund</span>
-                  <span class="asset-symbol">148726 · 127.096 units</span>
-                </td>
-                <td>14.14%</td>
-                <td>₹3,000.00</td>
-                <td>₹3,345.94</td>
-                <td class="pos">+11.53%</td>
-              </tr>
-              <tr>
-                <td>
-                  <span class="asset-name">ICICI Prudential Nifty 50 Index Plan</span>
-                  <span class="asset-symbol">120620 · 12.07 units</span>
-                </td>
-                <td>12.95%</td>
-                <td>₹3,100.00</td>
-                <td>₹3,064.81</td>
-                <td class="neg">−1.14%</td>
-              </tr>
-              <tr>
-                <td>
-                  <span class="asset-name">Nippon India Nifty Smallcap 250 Index Fund</span>
-                  <span class="asset-symbol">148519 · 78.661 units</span>
-                </td>
-                <td>11.66%</td>
-                <td>₹2,600.00</td>
-                <td>₹2,758.30</td>
-                <td class="pos">+6.09%</td>
-              </tr>
-              <tr>
-                <td>
-                  <span class="asset-name">Nippon India ETF Gold BeES</span>
-                  <span class="asset-symbol">GOLDBEES · 21 shares</span>
-                </td>
-                <td>10.20%</td>
-                <td>₹1,797.39</td>
-                <td>₹2,414.16</td>
-                <td class="pos">+34.31%</td>
-              </tr>
-              <tr>
-                <td>
-                  <span class="asset-name">Navi Nifty Next 50 Index Fund</span>
-                  <span class="asset-symbol">149447 · 93.528 units</span>
-                </td>
-                <td>6.79%</td>
-                <td>₹1,500.00</td>
-                <td>₹1,606.46</td>
-                <td class="pos">+7.10%</td>
-              </tr>
-              <tr>
-                <td>
-                  <span class="asset-name">HDFC Flexi Cap Fund</span>
-                  <span class="asset-symbol">118955 · 0.587 units</span>
-                </td>
-                <td>5.50%</td>
-                <td>₹1,300.00</td>
-                <td>₹1,300.26</td>
-                <td class="pos">+0.02%</td>
-              </tr>
-              <tr>
-                <td>
-                  <span class="asset-name">Navi Nifty Bank Index Fund</span>
-                  <span class="asset-symbol">149804 · 79.43 units</span>
-                </td>
-                <td>5.15%</td>
-                <td>₹1,200.00</td>
-                <td>₹1,218.07</td>
-                <td class="pos">+1.51%</td>
-              </tr>
-              <tr>
-                <td>
-                  <span class="asset-name">Nippon India ETF Nifty IT</span>
-                  <span class="asset-symbol">ITBEES · 32 shares</span>
-                </td>
-                <td>4.11%</td>
-                <td>₹1,212.48</td>
-                <td>₹971.52</td>
-                <td class="neg">−19.87%</td>
-              </tr>
-              <tr>
-                <td>
-                  <span class="asset-name">HDFC Bank Ltd</span>
-                  <span class="asset-symbol">HDFCBANK · 1 shares</span>
-                </td>
-                <td>3.37%</td>
-                <td>₹745.00</td>
-                <td>₹796.30</td>
-                <td class="pos">+6.89%</td>
-              </tr>
-              <tr>
-                <td>
-                  <span class="asset-name">Invesco NASDAQ 100 ETF</span>
-                  <span class="asset-symbol">QQQM · 0.02447893 shares</span>
-                </td>
-                <td>2.88%</td>
-                <td>₹566.18</td>
-                <td>$7.23 (₹682.32)</td>
-                <td class="pos">+20.51%</td>
-              </tr>
-              <tr>
-                <td>
-                  <span class="asset-name">South Indian Bank Ltd</span>
-                  <span class="asset-symbol">SOUTHBANK · 14 shares</span>
-                </td>
-                <td>2.69%</td>
-                <td>₹346.92</td>
-                <td>₹635.74</td>
-                <td class="pos">+83.25%</td>
-              </tr>
-              <tr>
-                <td>
-                  <span class="asset-name">Vanguard S&P 500 ETF</span>
-                  <span class="asset-symbol">VOO · 0.00970001 shares</span>
-                </td>
-                <td>2.62%</td>
-                <td>₹566.06</td>
-                <td>$6.56 (₹618.92)</td>
-                <td class="pos">+9.34%</td>
-              </tr>
-              <tr>
-                <td>
-                  <span class="asset-name">Nippon India Nifty Pharma ETF</span>
-                  <span class="asset-symbol">PHARMABEES · 12 shares</span>
-                </td>
-                <td>1.30%</td>
-                <td>₹262.08</td>
-                <td>₹307.56</td>
-                <td class="pos">+17.35%</td>
-              </tr>
-              <tr>
-                <td>
-                  <span class="asset-name">Tata Silver Exchange Traded Fund</span>
-                  <span class="asset-symbol">TATSILV · 8 shares</span>
-                </td>
-                <td>0.71%</td>
-                <td>₹90.40</td>
-                <td>₹168.16</td>
-                <td class="pos">+86.02%</td>
-              </tr>
+              {{TABLE_ROWS}}
             </tbody>
             <tfoot id="holdings-tfoot">
-              
-            <tr>
-              <td>Total</td>
-              <td>100.00%</td>
-              <td>₹23,050.75</td>
-              <td>₹23,658.53</td>
-              <td class="pos">+2.64%</td>
-            </tr>
+              {{TABLE_FOOTER}}
             </tfoot>
           </table>
         </div>
@@ -1124,17 +924,17 @@
         <div class="metrics-grid">
           <div class="metric-cell">
             <div class="label">Largest Holding</div>
-            <div class="value" id="metric-largest-holding-val">ITC Ltd</div>
-            <div class="value-sub" id="metric-largest-holding-sub">15.94% of portfolio</div>
+            <div class="value" id="metric-largest-holding-val">{{LARGEST_HOLDING_NAME}}</div>
+            <div class="value-sub" id="metric-largest-holding-sub">{{LARGEST_HOLDING_PCT}}% of portfolio</div>
           </div>
           <div class="metric-cell">
             <div class="label">Best Performer</div>
-            <div class="value" id="metric-best-performer-val">Tata Silver Exchange Traded Fund</div>
-            <div class="value-sub pos" id="metric-best-performer-sub">86.02% return</div>
+            <div class="value" id="metric-best-performer-val">{{BEST_PERFORMER_NAME}}</div>
+            <div class="value-sub {{BEST_PERFORMER_CLASS}}" id="metric-best-performer-sub">{{BEST_PERFORMER_PCT}}% return</div>
           </div>
           <div class="metric-cell">
             <div class="label">Number of Holdings</div>
-            <div class="value" id="metric-total-holdings-val">15</div>
+            <div class="value" id="metric-total-holdings-val">{{TOTAL_HOLDINGS_COUNT}}</div>
             <div class="value-sub" id="metric-total-holdings-sub">Across equity, funds &amp; ETFs</div>
           </div>
         </div>
@@ -1148,233 +948,7 @@
 
     <script>
       // JSON data injected by compile script to enable instant client-side sorting
-      const calculatedHoldings = [
-  {
-    "name": "ITC Ltd",
-    "symbol": "ITC",
-    "type": "equity",
-    "qty": 13,
-    "invested": 4764.24,
-    "currentPrice": 290.0,
-    "currentValue": 3770.0,
-    "currentValueUSD": null,
-    "gain": -994.2399999999998,
-    "gainPct": -20.86880593756821,
-    "live": true,
-    "category": "Direct Equity",
-    "allocationPct": 15.93505901237686
-  },
-  {
-    "name": "Nippon India Nifty Midcap 150 Index Fund",
-    "symbol": "148726",
-    "type": "mf",
-    "qty": 127.096,
-    "invested": 3000.0,
-    "currentPrice": 26.3261,
-    "currentValue": 3345.9420056000004,
-    "currentValueUSD": null,
-    "gain": 345.94200560000036,
-    "gainPct": 11.531400186666678,
-    "live": true,
-    "category": "Mutual Funds",
-    "allocationPct": 14.142648093163551
-  },
-  {
-    "name": "ICICI Prudential Nifty 50 Index Plan",
-    "symbol": "120620",
-    "type": "mf",
-    "qty": 12.07,
-    "invested": 3100.0,
-    "currentPrice": 253.9199,
-    "currentValue": 3064.8131930000004,
-    "currentValueUSD": null,
-    "gain": -35.18680699999959,
-    "gainPct": -1.1350582903225674,
-    "live": true,
-    "category": "Mutual Funds",
-    "allocationPct": 12.954371112033463
-  },
-  {
-    "name": "Nippon India Nifty Smallcap 250 Index Fund",
-    "symbol": "148519",
-    "type": "mf",
-    "qty": 78.661,
-    "invested": 2600.0,
-    "currentPrice": 35.0657,
-    "currentValue": 2758.3030277,
-    "currentValueUSD": null,
-    "gain": 158.3030276999998,
-    "gainPct": 6.08857798846153,
-    "live": true,
-    "category": "Mutual Funds",
-    "allocationPct": 11.658812074381236
-  },
-  {
-    "name": "Nippon India ETF Gold BeES",
-    "symbol": "GOLDBEES",
-    "type": "etf",
-    "qty": 21,
-    "invested": 1797.39,
-    "currentPrice": 114.95999908447266,
-    "currentValue": 2414.159980773926,
-    "currentValueUSD": null,
-    "gain": 616.7699807739257,
-    "gainPct": 34.31475532710906,
-    "live": true,
-    "category": "Commodity & Sector ETFs",
-    "allocationPct": 10.20418614295785
-  },
-  {
-    "name": "Navi Nifty Next 50 Index Fund",
-    "symbol": "149447",
-    "type": "mf",
-    "qty": 93.528,
-    "invested": 1500.0,
-    "currentPrice": 17.1762,
-    "currentValue": 1606.4556336000003,
-    "currentValueUSD": null,
-    "gain": 106.45563360000028,
-    "gainPct": 7.097042240000019,
-    "live": true,
-    "category": "Mutual Funds",
-    "allocationPct": 6.790176478032166
-  },
-  {
-    "name": "HDFC Flexi Cap Fund",
-    "symbol": "118955",
-    "type": "mf",
-    "qty": 0.587,
-    "invested": 1300.0,
-    "currentPrice": 2215.087,
-    "currentValue": 1300.256069,
-    "currentValueUSD": null,
-    "gain": 0.25606900000002497,
-    "gainPct": 0.019697615384617305,
-    "live": true,
-    "category": "Mutual Funds",
-    "allocationPct": 5.4959302893146305
-  },
-  {
-    "name": "Navi Nifty Bank Index Fund",
-    "symbol": "149804",
-    "type": "mf",
-    "qty": 79.43,
-    "invested": 1200.0,
-    "currentPrice": 15.3352,
-    "currentValue": 1218.0749360000002,
-    "currentValueUSD": null,
-    "gain": 18.074936000000207,
-    "gainPct": 1.506244666666684,
-    "live": true,
-    "category": "Mutual Funds",
-    "allocationPct": 5.148566574710125
-  },
-  {
-    "name": "Nippon India ETF Nifty IT",
-    "symbol": "ITBEES",
-    "type": "etf",
-    "qty": 32,
-    "invested": 1212.48,
-    "currentPrice": 30.360000610351562,
-    "currentValue": 971.52001953125,
-    "currentValueUSD": null,
-    "gain": -240.95998046875002,
-    "gainPct": -19.873315887169273,
-    "live": true,
-    "category": "Commodity & Sector ETFs",
-    "allocationPct": 4.106426748789387
-  },
-  {
-    "name": "South Indian Bank Ltd",
-    "symbol": "SOUTHBANK",
-    "type": "equity",
-    "qty": 14,
-    "invested": 346.92,
-    "currentPrice": 45.40999984741211,
-    "currentValue": 635.7399978637695,
-    "currentValueUSD": null,
-    "gain": 288.8199978637695,
-    "gainPct": 83.2526224673612,
-    "live": true,
-    "category": "Direct Equity",
-    "allocationPct": 2.687149703577588
-  },
-  {
-    "name": "HDFC Bank Ltd",
-    "symbol": "HDFCBANK",
-    "type": "equity",
-    "qty": 1,
-    "invested": 745.0,
-    "currentPrice": 796.2999877929688,
-    "currentValue": 796.2999877929688,
-    "currentValueUSD": null,
-    "gain": 51.29998779296875,
-    "gainPct": 6.885904401740772,
-    "live": true,
-    "category": "Direct Equity",
-    "allocationPct": 3.3658056490811488
-  },
-  {
-    "name": "Invesco NASDAQ 100 ETF",
-    "symbol": "QQQM",
-    "type": "us_etf",
-    "qty": 0.02447893,
-    "invested": 566.18,
-    "currentPrice": 295.32000732421875,
-    "currentValue": 682.3202977585835,
-    "currentValueUSD": 7.229117786889038,
-    "gain": 116.14029775858353,
-    "gainPct": 20.512963679145066,
-    "live": true,
-    "category": "International ETFs",
-    "allocationPct": 2.884035599502806
-  },
-  {
-    "name": "Vanguard S&P 500 ETF",
-    "symbol": "VOO",
-    "type": "us_etf",
-    "qty": 0.00970001,
-    "invested": 566.06,
-    "currentPrice": 676.0200805664062,
-    "currentValue": 618.9203585209984,
-    "currentValueUSD": 6.557401541694946,
-    "gain": 52.86035852099849,
-    "gainPct": 9.338296032399127,
-    "live": true,
-    "category": "International ETFs",
-    "allocationPct": 2.61605634933516
-  },
-  {
-    "name": "Nippon India Nifty Pharma ETF",
-    "symbol": "PHARMABEES",
-    "type": "etf",
-    "qty": 12,
-    "invested": 262.08,
-    "currentPrice": 25.6299991607666,
-    "currentValue": 307.5599899291992,
-    "currentValueUSD": null,
-    "gain": 45.479989929199235,
-    "gainPct": 17.353476010836093,
-    "live": true,
-    "category": "Commodity & Sector ETFs",
-    "allocationPct": 1.2999964428031359
-  },
-  {
-    "name": "Tata Silver Exchange Traded Fund",
-    "symbol": "TATSILV",
-    "type": "etf",
-    "qty": 8,
-    "invested": 90.4,
-    "currentPrice": 21.020000457763672,
-    "currentValue": 168.16000366210938,
-    "currentValueUSD": null,
-    "gain": 77.76000366210937,
-    "gainPct": 86.01770316605018,
-    "live": true,
-    "category": "Commodity & Sector ETFs",
-    "allocationPct": 0.7107797299409077
-  }
-];
+      const calculatedHoldings = {{INITIAL_DATA_JSON}};
       let activeSort = { key: "allocation", direction: "desc" };
 
       const CATEGORY_MAP = {
