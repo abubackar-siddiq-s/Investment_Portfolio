@@ -234,7 +234,8 @@ def compile_portfolio():
     best_cls = "pos" if best["gainPct"] >= 0 else "neg"
 
     # Compiled time
-    now_str = dt.datetime.now().strftime("%d %b %Y, %I:%M %p")
+    IST = dt.timezone(dt.timedelta(hours=5, minutes=30))
+    now_str = dt.datetime.now(IST).strftime("%d %b %Y, %I:%M %p")
 
     # 8. Load template and replace
     template_path = os.path.join(base_dir, "index.template.html")
