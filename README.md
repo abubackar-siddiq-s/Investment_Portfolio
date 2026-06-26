@@ -2,7 +2,7 @@
 
 A clean, single-page website for viewing my investment portfolio.
 
-**Live:** [https://abubackar-portfolio.netlify.app/](https://abubackar-portfolio.netlify.app/)
+**Live:** [https://abubackar-siddiq-s.github.io/Investment_Portfolio/](https://abubackar-siddiq-s.github.io/Investment_Portfolio/) **(or)** [https://abubackar-portfolio.netlify.app/](https://abubackar-portfolio.netlify.app/)
 
 ## About
 
