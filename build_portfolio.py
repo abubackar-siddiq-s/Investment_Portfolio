@@ -230,7 +230,8 @@ def compile_portfolio():
 
     # 7. Portfolio Metrics
     largest = max(calculated, key=lambda x: x["allocationPct"])
-    best = max(calculated, key=lambda x: x["gainPct"])
+    live_holdings = [c for c in calculated if c["live"]]
+    best = max(live_holdings, key=lambda x: x["gainPct"]) if live_holdings else max(calculated, key=lambda x: x["gainPct"])
     best_cls = "pos" if best["gainPct"] >= 0 else "neg"
 
     # Compiled time
