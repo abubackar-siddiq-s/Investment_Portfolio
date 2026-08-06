@@ -983,21 +983,20 @@
               </g>
               <text
                 x="110"
-                y="100"
+                y="103"
                 text-anchor="middle"
-                font-size="10"
+                font-size="11"
                 fill="#5c6059"
                 font-family="'IBM Plex Mono', monospace"
                 letter-spacing="0.5"
-                id="donut-center-label"
               >
                 CURRENT VALUE
               </text>
               <text
                 x="110"
-                y="122"
+                y="126"
                 text-anchor="middle"
-                font-size="16"
+                font-size="17"
                 font-weight="600"
                 fill="#f1f1ee"
                 font-family="'IBM Plex Mono', monospace"
@@ -1005,15 +1004,6 @@
               >
                 ₹{{TOTAL_CURRENT}}
               </text>
-              <text
-                x="110"
-                y="138"
-                text-anchor="middle"
-                font-size="10"
-                fill="#3ddc84"
-                font-family="'IBM Plex Mono', monospace"
-                id="donut-center-sub"
-              ></text>
             </svg>
           </div>
           <div class="legend">
@@ -1405,53 +1395,45 @@
       function setupDonutLegendInteractions() {
         const legendItems = document.querySelectorAll('#legend-list li');
         const arcsGroup = document.getElementById('donut-arcs');
-        const centerLabel = document.getElementById('donut-center-label');
-        const centerVal = document.getElementById('donut-total-current');
-        const centerSub = document.getElementById('donut-center-sub');
         if (!arcsGroup) return;
-
-        const defaultLabel = centerLabel ? centerLabel.textContent : "CURRENT VALUE";
-        const defaultVal = centerVal ? centerVal.textContent : "";
-
         const arcs = arcsGroup.querySelectorAll('circle');
 
-        function activateIndex(idx) {
-          arcsGroup.classList.add('dimmed');
-          legendItems.forEach(item => item.classList.remove('active-legend'));
-          arcs.forEach(a => a.classList.remove('highlighted'));
-
-          if (legendItems[idx]) legendItems[idx].classList.add('active-legend');
-          if (arcs[idx]) arcs[idx].classList.add('highlighted');
-
-          if (legendItems[idx]) {
-            const nameEl = legendItems[idx].querySelector('.swatch-label');
-            const pctEl = legendItems[idx].querySelector('.pct');
-            const amtEl = legendItems[idx].querySelector('.amt');
-
-            if (centerLabel && nameEl) centerLabel.textContent = nameEl.textContent.trim().toUpperCase();
-            if (centerVal && amtEl) centerVal.textContent = amtEl.textContent.trim();
-            if (centerSub && pctEl) centerSub.textContent = `${pctEl.textContent.trim()} OF PORTFOLIO`;
-          }
-        }
-
-        function resetCenter() {
-          arcsGroup.classList.remove('dimmed');
-          legendItems.forEach(item => item.classList.remove('active-legend'));
-          arcs.forEach(a => a.classList.remove('highlighted'));
-
-          if (centerLabel) centerLabel.textContent = defaultLabel;
-          if (centerVal) centerVal.textContent = defaultVal;
-          if (centerSub) centerSub.textContent = "";
-        }
-
         legendItems.forEach((li, idx) => {
-          li.addEventListener('mouseenter', () => activateIndex(idx));
-          li.addEventListener('mouseleave', resetCenter);
+          li.addEventListener('mouseenter', () => {
+            arcsGroup.classList.add('dimmed');
+            legendItems.forEach(item => item.classList.remove('active-legend'));
+            li.classList.add('active-legend');
+
+            if (arcs[idx]) {
+              arcs[idx].classList.add('highlighted');
+            }
+          });
+
+          li.addEventListener('mouseleave', () => {
+            arcsGroup.classList.remove('dimmed');
+            li.classList.remove('active-legend');
+            if (arcs[idx]) {
+              arcs[idx].classList.remove('highlighted');
+            }
+          });
         });
 
         arcs.forEach((arc, idx) => {
-          arc.addEventListener('mouseenter', () => activateIndex(idx));
-          arc.addEventListener('mouseleave', resetCenter);
+          arc.addEventListener('mouseenter', () => {
+            arcsGroup.classList.add('dimmed');
+            arc.classList.add('highlighted');
+            if (legendItems[idx]) {
+              legendItems[idx].classList.add('active-legend');
+            }
+          });
+
+          arc.addEventListener('mouseleave', () => {
+            arcsGroup.classList.remove('dimmed');
+            arc.classList.remove('highlighted');
+            if (legendItems[idx]) {
+              legendItems[idx].classList.remove('active-legend');
+            }
+          });
         });
       }
     </script>
