@@ -103,6 +103,13 @@ def compile_portfolio():
         price = None
         live = False
 
+        if h["type"] == "us_etf":
+            invested_usd = h["invested"]
+            invested_inr = invested_usd * usd_inr
+        else:
+            invested_usd = None
+            invested_inr = h["invested"]
+
         if h["type"] == "mf":
             price = navs.get(h["symbol"])
         else:
@@ -117,13 +124,13 @@ def compile_portfolio():
                 current_value_usd = None
                 current_value = price * h["qty"]
         else:
-            current_value_usd = None
-            current_value = h["invested"] # fallback
+            current_value_usd = invested_usd if h["type"] == "us_etf" else None
+            current_value = invested_inr # fallback
 
-        gain = current_value - h["invested"]
-        gain_pct = (gain / h["invested"] * 100) if h["invested"] else 0
+        gain = current_value - invested_inr
+        gain_pct = (gain / invested_inr * 100) if invested_inr else 0
 
-        total_invested += h["invested"]
+        total_invested += invested_inr
         total_current += current_value
 
         calculated.append({
@@ -131,14 +138,15 @@ def compile_portfolio():
             "symbol": h["symbol"],
             "type": h["type"],
             "qty": h["qty"],
-            "invested": h["invested"],
+            "invested": invested_inr,
+            "investedUSD": invested_usd,
             "currentPrice": price,
             "currentValue": current_value,
             "currentValueUSD": current_value_usd,
             "gain": gain,
             "gainPct": gain_pct,
             "live": live,
-            "category": CATEGORY_MAP[h["type"]]
+            "category": CATEGORY_MAP.get(h["type"], h["type"].replace("_", " ").title())
         })
 
     # Add allocation %
@@ -152,9 +160,10 @@ def compile_portfolio():
     total_gain_sign = "+" if total_gain >= 0 else "−"
 
     # Category grouping
-    category_totals = {cat: 0.0 for cat in CATEGORY_MAP.values()}
+    category_totals = {}
     for c in calculated:
-        category_totals[c["category"]] += c["currentValue"]
+        cat = c["category"]
+        category_totals[cat] = category_totals.get(cat, 0.0) + c["currentValue"]
 
     # 5. Build SVG Donut arcs
     CIRCUMFERENCE = 502.65
@@ -162,11 +171,15 @@ def compile_portfolio():
     arcs_html = []
     legend_html = []
     
-    order = ["Mutual Funds", "Direct Equity", "Commodity & Sector ETFs", "International ETFs"]
+    # Preserved preference order plus any newly added category
+    default_order = ["Mutual Funds", "Direct Equity", "Commodity & Sector ETFs", "International ETFs"]
+    existing_cats = set(category_totals.keys())
+    order = [c for c in default_order if c in existing_cats] + [c for c in existing_cats if c not in default_order]
+
     for cat in order:
         amt = category_totals[cat]
         pct = (amt / total_current * 100) if total_current else 0
-        color = CATEGORY_COLORS[cat]
+        color = CATEGORY_COLORS.get(cat, "#8c9089")
 
         if pct > 0:
             length = (pct / 100) * CIRCUMFERENCE
@@ -184,8 +197,8 @@ def compile_portfolio():
               <span class="swatch" style="background: {color}"></span>
               {cat}
             </span>
-            <span>
-              <span class="pct">{pct:.2f}%</span>
+            <span class="legend-values">
+              <span class="pct" style="background: {color}1a; color: {color}; border: 1px solid {color}40;">{pct:.2f}%</span>
               <span class="amt">₹{amt:,.2f}</span>
             </span>
           </li>""")
@@ -199,6 +212,11 @@ def compile_portfolio():
         sign = "+" if h["gain"] >= 0 else "−"
         live_tag = "" if h["live"] else ' <span style="color:var(--faint);font-size:10px;">(cached)</span>'
         
+        if h["type"] == "us_etf" and h.get("investedUSD") is not None:
+            invested_text = f"${h['investedUSD']:,.2f} (₹{h['invested']:,.2f})"
+        else:
+            invested_text = f"₹{h['invested']:,.2f}"
+
         if h["type"] == "us_etf" and h["currentValueUSD"] is not None:
             value_text = f"${h['currentValueUSD']:,.2f} (₹{h['currentValue']:,.2f})"
         else:
@@ -213,7 +231,7 @@ def compile_portfolio():
                   <span class="asset-symbol">{h['symbol']} · {h['qty']} {unit_label}</span>
                 </td>
                 <td>{h['allocationPct']:.2f}%</td>
-                <td>₹{h['invested']:,.2f}</td>
+                <td>{invested_text}</td>
                 <td>{value_text}</td>
                 <td class="{cls}">{sign}{abs(h['gainPct']):.2f}%</td>
               </tr>""")

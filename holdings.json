@@ -81,14 +81,14 @@
     "symbol": "QQQM",
     "type": "us_etf",
     "qty": 0.02447893,
-    "invested": 566.18
+    "invested": 6.06
   },
   {
     "name": "Vanguard S&P 500 ETF",
     "symbol": "VOO",
     "type": "us_etf",
     "qty": 0.00970001,
-    "invested": 566.06
+    "invested": 6.06
   },
   {
     "name": "Nippon India Nifty Pharma ETF",

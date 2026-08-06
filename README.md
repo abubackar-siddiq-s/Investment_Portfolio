@@ -20,11 +20,11 @@ Prices update automatically: a GitHub Actions workflow runs on a schedule, pulls
 
 ## How it works
 
-- `holdings.json` — source of truth for what I own: name, symbol, type, quantity, and amount invested. This is the **only** file I edit when I buy or sell.
+- `holdings.json` — source of truth for what I own: name, symbol, type, quantity, and amount invested (in INR for domestic assets, in USD for `us_etf`). This is the **only** file I edit when I buy or sell.
 - `build_portfolio.py` — reads `holdings.json`, fetches live prices, computes allocation/gain figures, and renders the final page.
   - **Mutual funds** — NAV from AMFI's daily NAV file (`amfiindia.com/spages/NAVAll.txt`), matched by scheme code.
   - **Equity & domestic ETFs** — live price via `yfinance` (NSE, `.NS` suffix).
-  - **International ETFs** — live price via `yfinance` (US tickers), converted to INR using the live USD/INR rate.
+  - **International ETFs** — live price via `yfinance` (US tickers), with invested amount ($USD) and current price ($USD) converted to INR using the live USD/INR exchange rate.
 - `index.template.html` — static layout and styling (the "wealth terminal" dark UI: glassmorphism cards, animated SVG donut chart, sortable table). Placeholders in this file are filled in by the build script.
 - `index.html` — the generated output. This is what's actually deployed; don't edit it by hand, it gets overwritten on every run.
 - `.github/workflows/` — schedules `build_portfolio.py` to run automatically and commits the refreshed `index.html`.

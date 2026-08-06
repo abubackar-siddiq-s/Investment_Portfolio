@@ -110,6 +110,14 @@
         box-shadow:
           0 0 0 1px rgba(61, 220, 132, 0.25),
           0 8px 20px -8px rgba(61, 220, 132, 0.45);
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
+      }
+
+      .brand:hover .mark {
+        transform: rotate(10deg) scale(1.1);
+        box-shadow:
+          0 0 0 2px rgba(61, 220, 132, 0.4),
+          0 10px 25px -5px rgba(61, 220, 132, 0.6);
       }
 
       header.site-header h1 {
@@ -171,10 +179,27 @@
         color: var(--faint);
       }
 
-      /* ---------- Section shell ---------- */
+      /* ---------- Animations & Section shell ---------- */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
       section {
         margin-bottom: 48px;
+        animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
       }
+
+      section:nth-of-type(1) { animation-delay: 0.05s; }
+      section:nth-of-type(2) { animation-delay: 0.15s; }
+      section:nth-of-type(3) { animation-delay: 0.25s; }
+      section:nth-of-type(4) { animation-delay: 0.35s; }
 
       .eyebrow {
         display: flex;
@@ -197,10 +222,15 @@
         flex: 1;
         height: 1px;
         background: var(--border);
+        transition: background 0.3s ease;
+      }
+
+      section:hover .eyebrow .rule {
+        background: linear-gradient(90deg, var(--border-strong), transparent);
       }
 
       /* ---------- Summary ---------- */
-      .summary-grid {
+      .summary-grid, .metrics-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 1px;
@@ -208,6 +238,13 @@
         border: 1px solid var(--border);
         border-radius: var(--radius);
         overflow: hidden;
+        perspective: 1000px;
+        transition: border-color 0.25s ease, box-shadow 0.25s ease;
+      }
+
+      .summary-grid:hover, .metrics-grid:hover {
+        border-color: var(--border-strong);
+        box-shadow: 0 12px 32px -10px rgba(0, 0, 0, 0.4);
       }
 
       @media (min-width: 560px) {
@@ -216,15 +253,39 @@
         }
       }
 
-      .summary-cell {
+      .summary-cell, .metric-cell {
         background: var(--surface);
         padding: 20px 18px;
-        transition: background 0.2s ease;
         position: relative;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s ease, box-shadow 0.25s ease;
+        transform-style: preserve-3d;
+        will-change: transform;
       }
 
-      .summary-cell:hover {
+      .summary-cell::before, .metric-cell::before, .allocation-wrap::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: radial-gradient(
+          400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+          rgba(61, 220, 132, 0.08),
+          transparent 50%
+        );
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+      }
+
+      .summary-cell:hover::before, .metric-cell:hover::before, .allocation-wrap:hover::before {
+        opacity: 1;
+      }
+
+      .summary-cell:hover, .metric-cell:hover {
         background: var(--surface-2);
+        transform: translateY(-3px) translateZ(10px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+        box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(61, 220, 132, 0.25);
+        z-index: 2;
       }
 
       .summary-cell .label {
@@ -258,6 +319,7 @@
 
       /* ---------- Allocation ---------- */
       .allocation-wrap {
+        position: relative;
         display: flex;
         gap: 36px;
         align-items: center;
@@ -266,11 +328,36 @@
         padding: 28px;
         background: var(--surface);
         flex-wrap: wrap;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+        transform-style: preserve-3d;
+      }
+
+      .allocation-wrap:hover {
+        border-color: var(--border-strong);
+        transform: translateY(-2px) translateZ(6px);
+        box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(61, 220, 132, 0.15);
       }
 
       .donut-box {
         flex: 0 0 auto;
         margin: 0 auto;
+        position: relative;
+      }
+
+      #donut-arcs circle {
+        transition: stroke-width 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, filter 0.3s ease;
+        cursor: pointer;
+        transform-origin: center;
+      }
+
+      #donut-arcs circle:hover, #donut-arcs circle.highlighted {
+        stroke-width: 32px;
+        filter: drop-shadow(0 0 8px currentColor);
+      }
+
+      #donut-arcs.dimmed circle:not(.highlighted) {
+        opacity: 0.3;
+        stroke-width: 22px;
       }
 
       .legend {
@@ -293,37 +380,47 @@
         justify-content: space-between;
         font-size: 13.5px;
         border-bottom: 1px solid var(--border);
-        padding-bottom: 10px;
+        padding: 8px 10px;
+        margin: 0 -10px;
+        border-radius: var(--radius-sm);
+        transition: background 0.2s ease, transform 0.2s ease;
+        cursor: pointer;
       }
 
-      .legend li:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
+      .legend li:hover, .legend li.active-legend {
+        background: rgba(255, 255, 255, 0.04);
+        transform: translateX(4px);
       }
 
-      .legend .swatch-label {
+      .legend li .swatch {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .legend li:hover .swatch, .legend li.active-legend .swatch {
+        transform: scale(1.4);
+        box-shadow: 0 0 8px currentColor;
+      }
+
+      .legend .legend-values {
         display: flex;
         align-items: center;
         gap: 10px;
       }
 
-      .swatch {
-        width: 9px;
-        height: 9px;
-        border-radius: 50%;
-        flex: 0 0 auto;
-      }
-
       .legend .pct {
         font-weight: 600;
+        font-size: 11.5px;
+        padding: 3px 8px;
+        border-radius: 6px;
         font-variant-numeric: tabular-nums;
         font-family: var(--font-mono);
+        letter-spacing: 0.02em;
       }
 
       .legend .amt {
-        font-size: 11.5px;
-        color: var(--faint);
-        margin-left: 8px;
+        font-size: 12.5px;
+        color: var(--text);
+        font-weight: 500;
         font-variant-numeric: tabular-nums;
         font-family: var(--font-mono);
       }
@@ -334,6 +431,12 @@
         border-radius: var(--radius);
         background: var(--surface);
         overflow: hidden;
+        transition: border-color 0.25s ease, box-shadow 0.25s ease;
+      }
+
+      .table-shell:hover {
+        border-color: var(--border-strong);
+        box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.5);
       }
 
       table {
@@ -404,11 +507,18 @@
       }
 
       tbody tr {
-        transition: background 0.15s ease;
+        transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
       }
 
       tbody tr:hover {
-        background: rgba(255, 255, 255, 0.025);
+        background: rgba(255, 255, 255, 0.035);
+        transform: translateX(3px);
+        box-shadow: inset 3px 0 0 var(--green);
+      }
+
+      tbody tr:hover .asset-name {
+        color: #fff;
       }
 
       tbody td {
@@ -734,7 +844,7 @@
         </div>
         <div class="updated-stack" id="updated-stack">
           <span class="live-badge" id="live-badge"><span class="live-dot"></span>LIVE</span>
-          <div class="updated-time" id="updated-time">Updated 07 Aug 2026, 12:02 AM IST</div>
+          <div class="updated-time" id="updated-time">Updated 07 Aug 2026, 12:56 AM IST</div>
         </div>
       </header>
 
@@ -747,19 +857,19 @@
         <div class="summary-grid">
           <div class="summary-cell">
             <div class="label">Total Invested</div>
-            <div class="value" id="summary-total-invested">₹23,953.30</div>
+            <div class="value" id="summary-total-invested">₹23,973.91</div>
           </div>
           <div class="summary-cell">
             <div class="label">Current Value</div>
-            <div class="value" id="summary-current-value">₹25,224.64</div>
+            <div class="value" id="summary-current-value">₹25,223.24</div>
           </div>
           <div class="summary-cell">
             <div class="label">Total Gain / Loss</div>
-            <div class="value pos" id="summary-total-gain">+₹1,271.34</div>
+            <div class="value pos" id="summary-total-gain">+₹1,249.33</div>
           </div>
           <div class="summary-cell">
             <div class="label">Return</div>
-            <div class="value pos" id="summary-total-return">+5.31%</div>
+            <div class="value pos" id="summary-total-return">+5.21%</div>
           </div>
         </div>
       </section>
@@ -788,10 +898,10 @@
                   stroke-width="26"
                 ></circle>
                 <g id="donut-arcs">
-                  <circle r="80" fill="none" stroke="#3ddc84" stroke-width="26" stroke-dasharray="284.37 502.65" stroke-dashoffset="-0.00"></circle>
-<circle r="80" fill="none" stroke="#c9a45c" stroke-width="26" stroke-dasharray="107.62 502.65" stroke-dashoffset="-284.37"></circle>
-<circle r="80" fill="none" stroke="#5c8f9c" stroke-width="26" stroke-dasharray="83.98 502.65" stroke-dashoffset="-391.99"></circle>
-<circle r="80" fill="none" stroke="#8c9089" stroke-width="26" stroke-dasharray="26.68 502.65" stroke-dashoffset="-475.97"></circle>
+                  <circle r="80" fill="none" stroke="#3ddc84" stroke-width="26" stroke-dasharray="284.38 502.65" stroke-dashoffset="-0.00"></circle>
+<circle r="80" fill="none" stroke="#c9a45c" stroke-width="26" stroke-dasharray="107.63 502.65" stroke-dashoffset="-284.38"></circle>
+<circle r="80" fill="none" stroke="#5c8f9c" stroke-width="26" stroke-dasharray="83.98 502.65" stroke-dashoffset="-392.01"></circle>
+<circle r="80" fill="none" stroke="#8c9089" stroke-width="26" stroke-dasharray="26.66 502.65" stroke-dashoffset="-475.99"></circle>
                 </g>
               </g>
               <text
@@ -815,7 +925,7 @@
                 font-family="'IBM Plex Mono', monospace"
                 id="donut-total-current"
               >
-                ₹25,224.64
+                ₹25,223.24
               </text>
             </svg>
           </div>
@@ -827,8 +937,8 @@
               <span class="swatch" style="background: #3ddc84"></span>
               Mutual Funds
             </span>
-            <span>
-              <span class="pct">56.57%</span>
+            <span class="legend-values">
+              <span class="pct" style="background: #3ddc841a; color: #3ddc84; border: 1px solid #3ddc8440;">56.58%</span>
               <span class="amt">₹14,270.41</span>
             </span>
           </li>
@@ -837,8 +947,8 @@
               <span class="swatch" style="background: #c9a45c"></span>
               Direct Equity
             </span>
-            <span>
-              <span class="pct">21.41%</span>
+            <span class="legend-values">
+              <span class="pct" style="background: #c9a45c1a; color: #c9a45c; border: 1px solid #c9a45c40;">21.41%</span>
               <span class="amt">₹5,400.92</span>
             </span>
           </li>
@@ -847,8 +957,8 @@
               <span class="swatch" style="background: #5c8f9c"></span>
               Commodity & Sector ETFs
             </span>
-            <span>
-              <span class="pct">16.71%</span>
+            <span class="legend-values">
+              <span class="pct" style="background: #5c8f9c1a; color: #5c8f9c; border: 1px solid #5c8f9c40;">16.71%</span>
               <span class="amt">₹4,214.28</span>
             </span>
           </li>
@@ -857,9 +967,9 @@
               <span class="swatch" style="background: #8c9089"></span>
               International ETFs
             </span>
-            <span>
-              <span class="pct">5.31%</span>
-              <span class="amt">₹1,339.03</span>
+            <span class="legend-values">
+              <span class="pct" style="background: #8c90891a; color: #8c9089; border: 1px solid #8c908940;">5.30%</span>
+              <span class="amt">₹1,337.63</span>
             </span>
           </li>
             </ul>
@@ -1056,9 +1166,9 @@
                   <span class="asset-symbol">QQQM · 0.02447893 shares</span>
                 </td>
                 <td>2.72%</td>
-                <td>₹566.18</td>
-                <td>$7.22 (₹686.45)</td>
-                <td class="pos">+21.24%</td>
+                <td>$6.06 (₹576.43)</td>
+                <td>$7.21 (₹685.54)</td>
+                <td class="pos">+18.93%</td>
               </tr>
               <tr>
                 <td>
@@ -1076,9 +1186,9 @@
                   <span class="asset-symbol">VOO · 0.00970001 shares</span>
                 </td>
                 <td>2.59%</td>
-                <td>₹566.06</td>
-                <td>$6.86 (₹652.58)</td>
-                <td class="pos">+15.28%</td>
+                <td>$6.06 (₹576.43)</td>
+                <td>$6.86 (₹652.09)</td>
+                <td class="pos">+13.13%</td>
               </tr>
               <tr>
                 <td>
@@ -1106,9 +1216,9 @@
             <tr>
               <td>Total</td>
               <td>100.00%</td>
-              <td>₹23,953.30</td>
-              <td>₹25,224.64</td>
-              <td class="pos">+5.31%</td>
+              <td>₹23,973.91</td>
+              <td>₹25,223.24</td>
+              <td class="pos">+5.21%</td>
             </tr>
             </tfoot>
           </table>
@@ -1155,6 +1265,7 @@
     "type": "equity",
     "qty": 14,
     "invested": 5040.14,
+    "investedUSD": null,
     "currentPrice": 285.9,
     "currentValue": 4002.5999999999995,
     "currentValueUSD": null,
@@ -1162,7 +1273,7 @@
     "gainPct": -20.585539290575277,
     "live": true,
     "category": "Direct Equity",
-    "allocationPct": 15.867818316760571
+    "allocationPct": 15.868696618514782
   },
   {
     "name": "Nippon India Nifty Midcap 150 Index Fund",
@@ -1170,6 +1281,7 @@
     "type": "mf",
     "qty": 130.782,
     "invested": 3100.0,
+    "investedUSD": null,
     "currentPrice": 27.0007,
     "currentValue": 3531.2055474,
     "currentValueUSD": null,
@@ -1177,7 +1289,7 @@
     "gainPct": 13.909856367741932,
     "live": true,
     "category": "Mutual Funds",
-    "allocationPct": 13.999032645100751
+    "allocationPct": 13.999807507446915
   },
   {
     "name": "ICICI Prudential Nifty 50 Index Plan",
@@ -1185,6 +1297,7 @@
     "type": "mf",
     "qty": 12.454,
     "invested": 3200.0,
+    "investedUSD": null,
     "currentPrice": 260.6913,
     "currentValue": 3246.6494502000005,
     "currentValueUSD": null,
@@ -1192,7 +1305,7 @@
     "gainPct": 1.4577953187500157,
     "live": true,
     "category": "Mutual Funds",
-    "allocationPct": 12.870944789382953
+    "allocationPct": 12.871657210785898
   },
   {
     "name": "Nippon India Nifty Smallcap 250 Index Fund",
@@ -1200,6 +1313,7 @@
     "type": "mf",
     "qty": 81.413,
     "invested": 2700.0,
+    "investedUSD": null,
     "currentPrice": 36.4051,
     "currentValue": 2963.8484062999996,
     "currentValueUSD": null,
@@ -1207,7 +1321,7 @@
     "gainPct": 9.772163196296283,
     "live": true,
     "category": "Mutual Funds",
-    "allocationPct": 11.749814627889064
+    "allocationPct": 11.750464993465057
   },
   {
     "name": "Nippon India ETF Gold BeES",
@@ -1215,6 +1329,7 @@
     "type": "etf",
     "qty": 21,
     "invested": 1797.39,
+    "investedUSD": null,
     "currentPrice": 122.48,
     "currentValue": 2572.08,
     "currentValueUSD": null,
@@ -1222,7 +1337,7 @@
     "gainPct": 43.10082953616076,
     "live": true,
     "category": "Commodity & Sector ETFs",
-    "allocationPct": 10.196696681200603
+    "allocationPct": 10.19726107993542
   },
   {
     "name": "Navi Nifty Next 50 Index Fund",
@@ -1230,6 +1345,7 @@
     "type": "mf",
     "qty": 99.161,
     "invested": 1600.0,
+    "investedUSD": null,
     "currentPrice": 17.767,
     "currentValue": 1761.793487,
     "currentValueUSD": null,
@@ -1237,7 +1353,7 @@
     "gainPct": 10.112092937499995,
     "live": true,
     "category": "Mutual Funds",
-    "allocationPct": 6.984414871175755
+    "allocationPct": 6.984801466466364
   },
   {
     "name": "HDFC Flexi Cap Fund",
@@ -1245,6 +1361,7 @@
     "type": "mf",
     "qty": 0.63,
     "invested": 1398.0,
+    "investedUSD": null,
     "currentPrice": 2300.262,
     "currentValue": 1449.16506,
     "currentValueUSD": null,
@@ -1252,7 +1369,7 @@
     "gainPct": 3.6598755364806896,
     "live": true,
     "category": "Mutual Funds",
-    "allocationPct": 5.7450376962667855
+    "allocationPct": 5.745355690624039
   },
   {
     "name": "Navi Nifty Bank Index Fund",
@@ -1260,6 +1377,7 @@
     "type": "mf",
     "qty": 85.992,
     "invested": 1300.0,
+    "investedUSD": null,
     "currentPrice": 15.3241,
     "currentValue": 1317.7500072,
     "currentValueUSD": null,
@@ -1267,7 +1385,7 @@
     "gainPct": 1.3653851692307712,
     "live": true,
     "category": "Mutual Funds",
-    "allocationPct": 5.224058787078283
+    "allocationPct": 5.224347944661589
   },
   {
     "name": "Nippon India ETF Nifty IT",
@@ -1275,6 +1393,7 @@
     "type": "etf",
     "qty": 33,
     "invested": 1241.13,
+    "investedUSD": null,
     "currentPrice": 34.56,
     "currentValue": 1140.48,
     "currentValueUSD": null,
@@ -1282,7 +1401,7 @@
     "gainPct": -8.109545333687855,
     "live": true,
     "category": "Commodity & Sector ETFs",
-    "allocationPct": 4.521293517688277
+    "allocationPct": 4.521543776416265
   },
   {
     "name": "South Indian Bank Ltd",
@@ -1290,6 +1409,7 @@
     "type": "equity",
     "qty": 14,
     "invested": 346.92,
+    "investedUSD": null,
     "currentPrice": 47.43,
     "currentValue": 664.02,
     "currentValueUSD": null,
@@ -1297,7 +1417,7 @@
     "gainPct": 91.40435835351089,
     "live": true,
     "category": "Direct Equity",
-    "allocationPct": 2.632426102707079
+    "allocationPct": 2.632571810479735
   },
   {
     "name": "HDFC Bank Ltd",
@@ -1305,6 +1425,7 @@
     "type": "equity",
     "qty": 1,
     "invested": 745.0,
+    "investedUSD": null,
     "currentPrice": 734.3,
     "currentValue": 734.3,
     "currentValueUSD": null,
@@ -1312,37 +1433,39 @@
     "gainPct": -1.4362416107382612,
     "live": true,
     "category": "Direct Equity",
-    "allocationPct": 2.911042569828933
+    "allocationPct": 2.911203699339281
   },
   {
     "name": "Invesco NASDAQ 100 ETF",
     "symbol": "QQQM",
     "type": "us_etf",
     "qty": 0.02447893,
-    "invested": 566.18,
-    "currentPrice": 294.80999755859375,
-    "currentValue": 686.4461787023135,
-    "currentValueUSD": 7.2166332935369875,
-    "gain": 120.2661787023136,
-    "gainPct": 21.241686160287117,
+    "invested": 576.4272166442871,
+    "investedUSD": 6.06,
+    "currentPrice": 294.4200134277344,
+    "currentValue": 685.5381256559451,
+    "currentValueUSD": 7.20708689929657,
+    "gain": 109.11090901165801,
+    "gainPct": 18.928826721065512,
     "live": true,
     "category": "International ETFs",
-    "allocationPct": 2.721331946205684
+    "allocationPct": 2.717882510483051
   },
   {
     "name": "Vanguard S&P 500 ETF",
     "symbol": "VOO",
     "type": "us_etf",
     "qty": 0.00970001,
-    "invested": 566.06,
-    "currentPrice": 707.2789916992188,
-    "currentValue": 652.581555204182,
-    "currentValueUSD": 6.860613292272339,
-    "gain": 86.52155520418205,
-    "gainPct": 15.284873547712621,
+    "invested": 576.4272166442871,
+    "investedUSD": 6.06,
+    "currentPrice": 706.75,
+    "currentValue": 652.093473089744,
+    "currentValueUSD": 6.8554820675000006,
+    "gain": 75.66625644545684,
+    "gainPct": 13.126766790429055,
     "live": true,
     "category": "International ETFs",
-    "allocationPct": 2.587079786850802
+    "allocationPct": 2.5852879356855
   },
   {
     "name": "Nippon India Nifty Pharma ETF",
@@ -1350,6 +1473,7 @@
     "type": "etf",
     "qty": 12,
     "invested": 262.08,
+    "investedUSD": null,
     "currentPrice": 27.290000915527344,
     "currentValue": 327.4800109863281,
     "currentValueUSD": null,
@@ -1357,7 +1481,7 @@
     "gainPct": 24.95421664618748,
     "live": true,
     "category": "Commodity & Sector ETFs",
-    "allocationPct": 1.2982544637739997
+    "allocationPct": 1.2983263236321214
   },
   {
     "name": "Tata Silver Exchange Traded Fund",
@@ -1365,6 +1489,7 @@
     "type": "etf",
     "qty": 8,
     "invested": 90.4,
+    "investedUSD": null,
     "currentPrice": 21.780000686645508,
     "currentValue": 174.24000549316406,
     "currentValueUSD": null,
@@ -1372,7 +1497,7 @@
     "gainPct": 92.74336890836732,
     "live": true,
     "category": "Commodity & Sector ETFs",
-    "allocationPct": 0.6907531980904641
+    "allocationPct": 0.6907914320640008
   }
 ];
       let activeSort = { key: "allocation", direction: "desc" };
@@ -1446,6 +1571,11 @@
           const cls = h.gain >= 0 ? "pos" : "neg";
           const liveIndicator = h.live ? "" : ' <span style="color:var(--faint);font-size:10px;">(cached)</span>';
           
+          let investedText = formatINR(h.invested);
+          if (h.type === "us_etf" && h.investedUSD !== undefined && h.investedUSD !== null) {
+            investedText = `${formatUSD(h.investedUSD)} (${formatINR(h.invested)})`;
+          }
+
           let valText = formatINR(h.currentValue);
           if (h.type === "us_etf" && h.currentValueUSD !== null) {
             valText = `${formatUSD(h.currentValueUSD)} (${formatINR(h.currentValue)})`;
@@ -1459,7 +1589,7 @@
               <span class="asset-symbol">${h.symbol} · ${h.qty} ${unitLabel}</span>
             </td>
             <td>${h.allocationPct.toFixed(2)}%</td>
-            <td>${formatINR(h.invested)}</td>
+            <td>${investedText}</td>
             <td>${valText}</td>
             <td class="${cls}">${formatPercent(h.gainPct)}</td>
           `;
@@ -1535,7 +1665,83 @@
           button.classList.toggle("asc", isActive && dir === "asc");
           button.classList.toggle("desc", isActive && dir === "desc");
         });
+
+        // 3D Card Tilt & Cursor Spotlight Effect
+        setup3DTilt();
+
+        // Donut Chart <-> Legend Cross-Highlighting
+        setupDonutLegendInteractions();
       });
+
+      function setup3DTilt() {
+        const tiltElements = document.querySelectorAll('.summary-cell, .metric-cell, .allocation-wrap');
+        tiltElements.forEach(el => {
+          el.addEventListener('mousemove', (e) => {
+            const rect = el.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const tiltX = ((y - centerY) / centerY) * -4;
+            const tiltY = ((x - centerX) / centerX) * 4;
+
+            el.style.setProperty('--mouse-x', `${(x / rect.width) * 100}%`);
+            el.style.setProperty('--mouse-y', `${(y / rect.height) * 100}%`);
+            el.style.setProperty('--tilt-x', `${tiltX.toFixed(2)}deg`);
+            el.style.setProperty('--tilt-y', `${tiltY.toFixed(2)}deg`);
+          });
+
+          el.addEventListener('mouseleave', () => {
+            el.style.setProperty('--tilt-x', '0deg');
+            el.style.setProperty('--tilt-y', '0deg');
+          });
+        });
+      }
+
+      function setupDonutLegendInteractions() {
+        const legendItems = document.querySelectorAll('#legend-list li');
+        const arcsGroup = document.getElementById('donut-arcs');
+        if (!arcsGroup) return;
+        const arcs = arcsGroup.querySelectorAll('circle');
+
+        legendItems.forEach((li, idx) => {
+          li.addEventListener('mouseenter', () => {
+            arcsGroup.classList.add('dimmed');
+            legendItems.forEach(item => item.classList.remove('active-legend'));
+            li.classList.add('active-legend');
+
+            if (arcs[idx]) {
+              arcs[idx].classList.add('highlighted');
+            }
+          });
+
+          li.addEventListener('mouseleave', () => {
+            arcsGroup.classList.remove('dimmed');
+            li.classList.remove('active-legend');
+            if (arcs[idx]) {
+              arcs[idx].classList.remove('highlighted');
+            }
+          });
+        });
+
+        arcs.forEach((arc, idx) => {
+          arc.addEventListener('mouseenter', () => {
+            arcsGroup.classList.add('dimmed');
+            arc.classList.add('highlighted');
+            if (legendItems[idx]) {
+              legendItems[idx].classList.add('active-legend');
+            }
+          });
+
+          arc.addEventListener('mouseleave', () => {
+            arcsGroup.classList.remove('dimmed');
+            arc.classList.remove('highlighted');
+            if (legendItems[idx]) {
+              legendItems[idx].classList.remove('active-legend');
+            }
+          });
+        });
+      }
     </script>
   </body>
 </html>
