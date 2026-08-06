@@ -425,6 +425,86 @@
         font-family: var(--font-mono);
       }
 
+      /* ---------- Holdings Toolbar ---------- */
+      .holdings-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+
+      .search-box {
+        position: relative;
+        flex: 1 1 240px;
+        min-width: 200px;
+      }
+
+      .search-box .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--faint);
+        pointer-events: none;
+      }
+
+      .search-box input {
+        width: 100%;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 9px 12px 9px 34px;
+        color: var(--text);
+        font-family: var(--font-display);
+        font-size: 13px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      }
+
+      .search-box input:focus {
+        outline: none;
+        background: var(--surface-2);
+        border-color: var(--green);
+        box-shadow: 0 0 0 3px var(--green-dim);
+      }
+
+      .category-filters {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        overflow-x: auto;
+        padding-bottom: 2px;
+        max-width: 100%;
+      }
+
+      .filter-chip {
+        all: unset;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .filter-chip:hover {
+        border-color: var(--border-strong);
+        color: var(--text);
+        background: var(--surface-2);
+      }
+
+      .filter-chip.active {
+        background: var(--green-dim);
+        border-color: var(--green);
+        color: var(--green);
+        font-weight: 600;
+      }
+
       /* ---------- Holdings table ---------- */
       .table-shell {
         border: 1px solid var(--border);
@@ -903,20 +983,21 @@
               </g>
               <text
                 x="110"
-                y="103"
+                y="100"
                 text-anchor="middle"
-                font-size="11"
+                font-size="10"
                 fill="#5c6059"
                 font-family="'IBM Plex Mono', monospace"
                 letter-spacing="0.5"
+                id="donut-center-label"
               >
                 CURRENT VALUE
               </text>
               <text
                 x="110"
-                y="126"
+                y="122"
                 text-anchor="middle"
-                font-size="17"
+                font-size="16"
                 font-weight="600"
                 fill="#f1f1ee"
                 font-family="'IBM Plex Mono', monospace"
@@ -924,6 +1005,15 @@
               >
                 ₹{{TOTAL_CURRENT}}
               </text>
+              <text
+                x="110"
+                y="138"
+                text-anchor="middle"
+                font-size="10"
+                fill="#3ddc84"
+                font-family="'IBM Plex Mono', monospace"
+                id="donut-center-sub"
+              ></text>
             </svg>
           </div>
           <div class="legend">
@@ -940,6 +1030,25 @@
           <h2 id="holdings-heading">Holdings</h2>
           <span class="rule"></span>
         </div>
+
+        <!-- ============ HOLDINGS TOOLBAR ============ -->
+        <div class="holdings-toolbar">
+          <div class="search-box">
+            <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="holdings-search" placeholder="Search holdings (e.g. ITC, QQQM, Flexi Cap)..." aria-label="Search holdings">
+          </div>
+          <div class="category-filters" id="category-filters">
+            <button type="button" class="filter-chip active" data-filter="all">All</button>
+            <button type="button" class="filter-chip" data-filter="mf">Mutual Funds</button>
+            <button type="button" class="filter-chip" data-filter="equity">Direct Equity</button>
+            <button type="button" class="filter-chip" data-filter="etf">Commodity ETFs</button>
+            <button type="button" class="filter-chip" data-filter="us_etf">International ETFs</button>
+          </div>
+        </div>
+
         <div class="mobile-sort">
           <label for="mobile-sort-select">Sort by</label>
           <div class="mobile-sort-controls">
@@ -1060,6 +1169,8 @@
       // JSON data injected by compile script to enable instant client-side sorting
       const calculatedHoldings = {{INITIAL_DATA_JSON}};
       let activeSort = { key: "allocation", direction: "desc" };
+      let activeFilter = "all";
+      let searchQuery = "";
 
       const CATEGORY_MAP = {
         "mf": "Mutual Funds",
@@ -1099,7 +1210,14 @@
         const key = activeSort.key;
         const dir = activeSort.direction;
 
-        const sorted = [...calculatedHoldings].sort((a, b) => {
+        const filtered = calculatedHoldings.filter(h => {
+          const matchesCategory = activeFilter === "all" || h.type === activeFilter;
+          const query = searchQuery.trim().toLowerCase();
+          const matchesSearch = !query || h.name.toLowerCase().includes(query) || h.symbol.toLowerCase().includes(query);
+          return matchesCategory && matchesSearch;
+        });
+
+        const sorted = filtered.sort((a, b) => {
           let aVal, bVal;
           if (key === "asset") {
             aVal = a.name.toLowerCase();
@@ -1125,8 +1243,16 @@
         const tbody = document.getElementById("holdings-tbody");
         tbody.innerHTML = "";
 
-        sorted.forEach(h => {
+        if (sorted.length === 0) {
           const tr = document.createElement("tr");
+          tr.innerHTML = `<td colspan="5" style="text-align: center; padding: 28px; color: var(--muted); font-family: var(--font-mono);">No matching holdings found</td>`;
+          tbody.appendChild(tr);
+          return;
+        }
+
+        sorted.forEach((h, i) => {
+          const tr = document.createElement("tr");
+          tr.style.animation = `fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.03}s both`;
           const cls = h.gain >= 0 ? "pos" : "neg";
           const liveIndicator = h.live ? "" : ' <span style="color:var(--faint);font-size:10px;">(cached)</span>';
           
@@ -1214,6 +1340,25 @@
           });
         }
 
+        // Search & Filter Event Handlers
+        const searchInput = document.getElementById("holdings-search");
+        if (searchInput) {
+          searchInput.addEventListener("input", (e) => {
+            searchQuery = e.target.value;
+            sortAndRenderTable();
+          });
+        }
+
+        const filterChips = document.querySelectorAll(".filter-chip");
+        filterChips.forEach(chip => {
+          chip.addEventListener("click", () => {
+            filterChips.forEach(c => c.classList.remove("active"));
+            chip.classList.add("active");
+            activeFilter = chip.dataset.filter;
+            sortAndRenderTable();
+          });
+        });
+
         // Set initial sort indicator classes
         const key = activeSort.key;
         const dir = activeSort.direction;
@@ -1228,7 +1373,7 @@
         // 3D Card Tilt & Cursor Spotlight Effect
         setup3DTilt();
 
-        // Donut Chart <-> Legend Cross-Highlighting
+        // Donut Chart <-> Legend Cross-Highlighting & Tooltip Centerpiece
         setupDonutLegendInteractions();
       });
 
@@ -1260,45 +1405,53 @@
       function setupDonutLegendInteractions() {
         const legendItems = document.querySelectorAll('#legend-list li');
         const arcsGroup = document.getElementById('donut-arcs');
+        const centerLabel = document.getElementById('donut-center-label');
+        const centerVal = document.getElementById('donut-total-current');
+        const centerSub = document.getElementById('donut-center-sub');
         if (!arcsGroup) return;
+
+        const defaultLabel = centerLabel ? centerLabel.textContent : "CURRENT VALUE";
+        const defaultVal = centerVal ? centerVal.textContent : "";
+
         const arcs = arcsGroup.querySelectorAll('circle');
 
+        function activateIndex(idx) {
+          arcsGroup.classList.add('dimmed');
+          legendItems.forEach(item => item.classList.remove('active-legend'));
+          arcs.forEach(a => a.classList.remove('highlighted'));
+
+          if (legendItems[idx]) legendItems[idx].classList.add('active-legend');
+          if (arcs[idx]) arcs[idx].classList.add('highlighted');
+
+          if (legendItems[idx]) {
+            const nameEl = legendItems[idx].querySelector('.swatch-label');
+            const pctEl = legendItems[idx].querySelector('.pct');
+            const amtEl = legendItems[idx].querySelector('.amt');
+
+            if (centerLabel && nameEl) centerLabel.textContent = nameEl.textContent.trim().toUpperCase();
+            if (centerVal && amtEl) centerVal.textContent = amtEl.textContent.trim();
+            if (centerSub && pctEl) centerSub.textContent = `${pctEl.textContent.trim()} OF PORTFOLIO`;
+          }
+        }
+
+        function resetCenter() {
+          arcsGroup.classList.remove('dimmed');
+          legendItems.forEach(item => item.classList.remove('active-legend'));
+          arcs.forEach(a => a.classList.remove('highlighted'));
+
+          if (centerLabel) centerLabel.textContent = defaultLabel;
+          if (centerVal) centerVal.textContent = defaultVal;
+          if (centerSub) centerSub.textContent = "";
+        }
+
         legendItems.forEach((li, idx) => {
-          li.addEventListener('mouseenter', () => {
-            arcsGroup.classList.add('dimmed');
-            legendItems.forEach(item => item.classList.remove('active-legend'));
-            li.classList.add('active-legend');
-
-            if (arcs[idx]) {
-              arcs[idx].classList.add('highlighted');
-            }
-          });
-
-          li.addEventListener('mouseleave', () => {
-            arcsGroup.classList.remove('dimmed');
-            li.classList.remove('active-legend');
-            if (arcs[idx]) {
-              arcs[idx].classList.remove('highlighted');
-            }
-          });
+          li.addEventListener('mouseenter', () => activateIndex(idx));
+          li.addEventListener('mouseleave', resetCenter);
         });
 
         arcs.forEach((arc, idx) => {
-          arc.addEventListener('mouseenter', () => {
-            arcsGroup.classList.add('dimmed');
-            arc.classList.add('highlighted');
-            if (legendItems[idx]) {
-              legendItems[idx].classList.add('active-legend');
-            }
-          });
-
-          arc.addEventListener('mouseleave', () => {
-            arcsGroup.classList.remove('dimmed');
-            arc.classList.remove('highlighted');
-            if (legendItems[idx]) {
-              legendItems[idx].classList.remove('active-legend');
-            }
-          });
+          arc.addEventListener('mouseenter', () => activateIndex(idx));
+          arc.addEventListener('mouseleave', resetCenter);
         });
       }
     </script>
