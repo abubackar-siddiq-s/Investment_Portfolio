@@ -35,6 +35,14 @@
 
       * {
         box-sizing: border-box;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+
+      *::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
       }
 
       html,
@@ -47,6 +55,15 @@
         font-size: 15px;
         line-height: 1.5;
         -webkit-font-smoothing: antialiased;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+
+      html::-webkit-scrollbar,
+      body::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
       }
 
       body {
