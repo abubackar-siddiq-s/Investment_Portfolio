@@ -15,32 +15,49 @@ CATEGORY_MAP = {
     "equity": "Direct Equity",
     "etf": "Commodity & Sector ETFs",
     "us_etf": "International ETFs",
+    "cash": "Cash & Liquidity",
 }
 CATEGORY_COLORS = {
     "Mutual Funds": "#3ddc84",
     "Direct Equity": "#c9a45c",
     "Commodity & Sector ETFs": "#5c8f9c",
     "International ETFs": "#8c9089",
+    "Cash & Liquidity": "#4a90e2",
 }
 
 def fetch_amfi_navs():
     """Download AMFI's daily NAV file and return {scheme_code: nav}."""
-    url = "https://www.amfiindia.com/spages/NAVAll.txt"
+    urls = [
+        "https://www.amfiindia.com/spages/NAVAll.txt",
+        "https://portal.amfiindia.com/spages/NAVAll.txt",
+    ]
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    }
     navs = {}
-    try:
-        resp = requests.get(url, timeout=15)
-        resp.raise_for_status()
-        for line in resp.text.splitlines():
-            parts = line.split(";")
-            if len(parts) >= 5 and parts[0].strip().isdigit():
-                code = parts[0].strip()
-                try:
-                    nav = float(parts[4].strip())
-                    navs[code] = nav
-                except ValueError:
-                    continue
-    except Exception as e:
-        print(f"Warning: AMFI NAV fetch failed: {e}")
+    for url in urls:
+        try:
+            resp = requests.get(url, headers=headers, timeout=30)
+            resp.raise_for_status()
+            for line in resp.text.splitlines():
+                parts = line.split(";")
+                if len(parts) >= 5 and parts[0].strip().isdigit():
+                    code = parts[0].strip()
+                    # AMFI format: Scheme Code;ISIN1;ISIN2;Scheme Name;Plan;Option;Net Asset Value;Date
+                    # Net Asset Value is at index -2 (or index 6 when 8 columns, or index 4 in older layouts)
+                    for col_idx in [-2, 6, 4]:
+                        if abs(col_idx) <= len(parts):
+                            try:
+                                nav = float(parts[col_idx].strip())
+                                navs[code] = nav
+                                break
+                            except ValueError:
+                                continue
+            if navs:
+                print(f"Successfully fetched {len(navs)} NAVs from AMFI.")
+                break
+        except Exception as e:
+            print(f"Warning: AMFI NAV fetch failed from {url}: {e}")
     return navs
 
 def fetch_equity_prices(symbols_ns, symbols_us):
@@ -110,22 +127,33 @@ def compile_portfolio():
             invested_usd = None
             invested_inr = h["invested"]
 
-        if h["type"] == "mf":
-            price = navs.get(h["symbol"])
-        else:
-            price = eq_prices.get(h["symbol"])
-
-        if price is not None:
+        if h["type"] == "cash":
+            price = 1.0
             live = True
-            if h["type"] == "us_etf":
-                current_value_usd = price * h["qty"]
-                current_value = current_value_usd * usd_inr
-            else:
+            current_value_usd = None
+            current_value = invested_inr
+        elif h["type"] == "mf":
+            price = navs.get(h["symbol"])
+            if price is not None:
+                live = True
                 current_value_usd = None
                 current_value = price * h["qty"]
+            else:
+                current_value_usd = None
+                current_value = invested_inr # fallback
         else:
-            current_value_usd = invested_usd if h["type"] == "us_etf" else None
-            current_value = invested_inr # fallback
+            price = eq_prices.get(h["symbol"])
+            if price is not None:
+                live = True
+                if h["type"] == "us_etf":
+                    current_value_usd = price * h["qty"]
+                    current_value = current_value_usd * usd_inr
+                else:
+                    current_value_usd = None
+                    current_value = price * h["qty"]
+            else:
+                current_value_usd = invested_usd if h["type"] == "us_etf" else None
+                current_value = invested_inr # fallback
 
         gain = current_value - invested_inr
         gain_pct = (gain / invested_inr * 100) if invested_inr else 0
@@ -222,7 +250,7 @@ def compile_portfolio():
         else:
             value_text = f"₹{h['currentValue']:,.2f}"
 
-        unit_label = "units" if h["type"] == "mf" else "shares"
+        unit_label = "cash" if h["type"] == "cash" else ("units" if h["type"] == "mf" else "shares")
 
         table_rows.append(f"""
               <tr>
@@ -248,7 +276,7 @@ def compile_portfolio():
 
     # 7. Portfolio Metrics
     largest = max(calculated, key=lambda x: x["allocationPct"])
-    live_holdings = [c for c in calculated if c["live"]]
+    live_holdings = [c for c in calculated if c["live"] and c["type"] != "cash"]
     best = max(live_holdings, key=lambda x: x["gainPct"]) if live_holdings else max(calculated, key=lambda x: x["gainPct"])
     best_cls = "pos" if best["gainPct"] >= 0 else "neg"
 
