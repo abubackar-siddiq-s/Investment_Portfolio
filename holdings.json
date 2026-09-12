@@ -10,22 +10,22 @@
     "name": "Nippon India Nifty Midcap 150 Index Fund",
     "symbol": "148726",
     "type": "mf",
-    "qty": 130.782,
-    "invested": 3100.00
+    "qty": 134.549,
+    "invested": 3200.00
   },
   {
     "name": "ICICI Prudential Nifty 50 Index Plan",
     "symbol": "120620",
     "type": "mf",
-    "qty": 12.838,
-    "invested": 3300.00
+    "qty": 13.240,
+    "invested": 3400.00
   },
   {
     "name": "Nippon India Nifty Smallcap 250 Index Fund",
     "symbol": "148519",
     "type": "mf",
-    "qty": 84.161,
-    "invested": 2800.00
+    "qty": 86.895,
+    "invested": 2900.00
   },
   {
     "name": "Nippon India ETF Gold BeES",
@@ -38,15 +38,15 @@
     "name": "Navi Nifty Next 50 Index Fund",
     "symbol": "149447",
     "type": "mf",
-    "qty": 99.161,
-    "invested": 1600.00
+    "qty": 104.940,
+    "invested": 1700.00
   },
   {
     "name": "HDFC Flexi Cap Fund",
     "symbol": "118955",
     "type": "mf",
-    "qty": 0.717,
-    "invested": 1598.00
+    "qty": 0.806,
+    "invested": 1799.00
   },
   {
     "name": "Navi Nifty Bank Index Fund",
